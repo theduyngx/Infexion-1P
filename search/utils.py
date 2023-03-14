@@ -3,15 +3,15 @@
 
 def apply_ansi(string, bold=True, color=None):
     """
-    Wraps a string with ANSI control codes to enable basic terminal-based
-    formatting on that string. Note: Not all terminals will be compatible!
+    Wraps a string with ANSI control codes to enable basic terminal-based formatting on that string.
+    Note: Not all terminals will be compatible!
 
     Arguments:
 
-    str -- String to apply ANSI control codes to
-    bold -- True if you want the text to be rendered bold
+    str   -- String to apply ANSI control codes to
+    bold  -- True if you want the text to be rendered bold
     color -- Colour of the text. Currently, only red/"r" and blue/"b" are
-        supported, but this can easily be extended if desired...
+             supported, but this can easily be extended if desired...
 
     """
     bold_code = "\033[1m" if bold else ""
@@ -25,9 +25,8 @@ def apply_ansi(string, bold=True, color=None):
 
 def render_board(board: dict[tuple, tuple], ansi=False) -> str:
     """
-    Visualise the Infexion hex board via a multiline ASCII string.
-    The layout corresponds to the axial coordinate system as described in the
-    game specification document.
+    Visualise the Infexion hex board via a multiline ASCII string. The layout corresponds to the
+    axial coordinate system as described in the game specification document.
     
     Example:
 
