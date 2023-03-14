@@ -31,6 +31,14 @@ def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     return all_roots
 
 
+def get_all_nodes(state: dict[tuple, tuple], root: tuple) -> [tuple]:
+    (_, val) = state[root]
+    # HERE: is where we define where the piece can move and how that affects the state
+    # Note: We should also think about whether the list of tuples would include positions where the
+    #       piece gets populated to as well, or only the initial piece next to it
+    return []
+
+
 def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
@@ -46,6 +54,10 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple],
     a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
     """
     # HERE: get all possible move from a given root
+    # 2 approaches to attempt movement from root:
+    #   1. After every single hypothetical move, we create the exact copy of the state with changes
+    #      resulting from the move
+    #   2. We create a roll_back function where after a move, we revert to the previous state
     return (), INF, True
 
 
