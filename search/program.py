@@ -12,10 +12,8 @@ INF = 9999
 def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     """
     Get all roots that player can start with, given only SPREAD action is permitted.
-
     Arguments:
     state -- The provided state of the board.
-
     Output:
     a list of (x, y) positions of all possible start move (root).
     """
@@ -31,44 +29,35 @@ def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     return all_roots
 
 
-def get_all_nodes(state: dict[tuple, tuple], root: tuple) -> [tuple]:
-    (_, val) = state[root]
-    # HERE: is where we define where the piece can move and how that affects the state
-    # Note: We should also think about whether the list of tuples would include positions where the
-    #       piece gets populated to as well, or only the initial piece next to it
-    return []
-
-
-def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
+def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
+    # def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
-
     Arguments:
     state -- The provided state of the board.
     root  -- Start position.
     depth -- Depth threshold for DFS.
-
     Output:
     a list of moves to reach to goal,
     a score that counts the number of steps to reach goal,
     a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
     """
+
     # HERE: get all possible move from a given root
-    # 2 approaches to attempt movement from root:
-    #   1. After every single hypothetical move, we create the exact copy of the state with changes
-    #      resulting from the move
-    #   2. We create a roll_back function where after a move, we revert to the previous state
+
+    # x_coords = [0, -1, -1, 0, 1, 1]
+    # y_coords = [1, 1, 0, -1, -1, 0]
+
     return (), INF, True
 
 
-def ids_score(state: dict[tuple, tuple], root: tuple) -> (int, [tuple]):
+def ids_score(state: dict[tuple, tuple], root: tuple) -> tuple:
+    # def ids_score(state: dict[tuple, tuple], root: tuple) -> (int, [tuple]):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
-
     Arguments:
     state -- The provided state of the board.
     root  -- Start position.
-
     Output:
     the score, and a list of optimal moves to reach to goal (given specified root)
     """
@@ -87,7 +76,6 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
     This is the entry point for your submission. The input is a dictionary of cell states, where
     the keys are tuples of (r, q) coordinates, and the values are tuples of (p, k) cell states. The
     output should be a list of  actions, where each action is a tuple of (r, q, dr, dq) coordinates.
-
     See the specification document for more details.
     """
 
@@ -112,3 +100,69 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
     # Here we're returning "hardcoded" actions for the given test.csv file.
     # Of course, you'll need to replace this with an actual solution...
     return min_ret
+
+
+# RAJA: HELPER FUNCTIONS
+# Main function to move pieces
+# For now returns state and a boolean indicating if it was updated
+def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> tuple:
+    # Check first if position in dictionary/is a red piece
+    if state[position][0] == 'b' or position not in state:
+        return state, False
+
+    # Since a valid position to use, store POWER
+    curr_power = state[position][1]
+    curr_pos = position
+
+    # Now decrement power and each time place
+    # a piece in a new position
+    while curr_power != 0:
+        state, curr_pos = make_move(curr_pos, direction, state)
+        curr_power -= 1
+
+    # Last thing to do is remove the entry from the current position
+    del state[position]
+
+    # Now we want to move all the pieces from the stack to positions
+    # in the corresponding direction
+    return state, True
+
+
+# Returns the new position for iteration
+def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> tuple:
+    new_pos = []
+    for i in range(len(position)):
+        curr_pos = position[i] + direction[i]
+        if 0 <= curr_pos <= 6:
+            new_pos.append(curr_pos)
+        elif curr_pos == 7:
+            new_pos.append(0)
+        elif curr_pos == -1:
+            new_pos.append(6)
+    # Now check if there needs to be adjustment on the specific tile
+    new_pos = (new_pos[0], new_pos[1])
+
+    if new_pos in state:
+        new_power = state[new_pos][1] + 1
+
+        # Here we want to remove the key from the board
+        if new_power > 6:
+            del state[new_pos]
+        # Just increment power for used position
+        else:
+            state[new_pos] = ('r', new_power)
+
+    # Since this is new, can just add a single red piece
+    else:
+        state[new_pos] = ('r', 1)
+
+    # Make sure to return the new position for the loop
+    return state, new_pos
+
+
+# Test victory condition
+def check_victory(state: dict[tuple, tuple]) -> bool:
+    for key in state.keys():
+        if state[key][0] == 'b':
+            return False
+    return True
