@@ -45,8 +45,8 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
 
     # HERE: get all possible move from a given root
 
-    # x_coords = [0, -1, -1, 0, 1, 1]
-    # y_coords = [1, 1, 0, -1, -1, 0]
+    # xCoords = [0, -1, -1, 0, 1, 1]
+    # yCoords = [1, 1, 0, -1, -1, 0]
 
     return (), INF, True
 

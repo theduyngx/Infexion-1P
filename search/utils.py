@@ -30,14 +30,14 @@ def render_board(board: dict[tuple, tuple], ansi=False) -> str:
     
     Example:
 
-        >>> board = {
+        >>> state = {
         ...     (5, 6): ("r", 2),
         ...     (1, 0): ("b", 2),
         ...     (1, 1): ("b", 1),
         ...     (3, 2): ("b", 1),
         ...     (1, 3): ("b", 3),
         ... }
-        >>> render_board(board, ansi=False)
+        >>> render_board(state, ansi=False)
 
                                 ..     
                             ..      ..     
