@@ -1,6 +1,8 @@
+import time
 from utils import render_board
-from program import spread, check_victory, RAJA_search
+from program import spread, check_victory, RAJA_search, RAJA_dfs_limited
 
+INF = 9999
 
 def main():
     board = {
@@ -29,7 +31,6 @@ def main():
 
     ret = spread((0, 6), (0, 1), board)
     print("\nPiece NOT existing hence ret for SPREAD is " + str(ret))
-    ret = spread((5, 6), (1, 0), board)
     print("Piece existing hence ret for SPREAD is " + str(ret))
     print(render_board(board))
 
@@ -41,6 +42,7 @@ def main():
 
 # RAJA: TESTS IDS IMPLEMENTATION
 def main2():
+    st = time.time()
     board = {
         (5, 6): ("r", 2),
         (1, 0): ("b", 2),
@@ -48,7 +50,27 @@ def main2():
         (3, 2): ("b", 1),
         (1, 3): ("b", 3)
     }
+
+    """
+    board = {
+        (4, 0): ("r", 1),
+        (1, 0): ("b", 2),
+        (1, 1): ("b", 1),
+        (1, 3): ("r", 4),
+        (2 ,3): ("r", 1)
+    }
+    """
+
+    movesList = []
+    valid = [([], INF, True)]
+    # tracker = (INF, True)
+
     print(RAJA_search(board))
+
+    # print(RAJA_dfs_limited(board, 1, movesList, valid=valid))
+    # print(valid)
+    et = time.time()
+    print(f'Time Taken: {et-st}')
     return
 
 if __name__ == '__main__':
