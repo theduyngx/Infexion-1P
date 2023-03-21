@@ -1,5 +1,5 @@
 from utils import render_board
-from program import spread, check_victory
+from program import spread, check_victory, num_enemy
 
 
 def main():
@@ -14,7 +14,8 @@ def main():
         (2, 5): ("b", 3)
     }
     print("\nINIT: ")
-    print("Victory status: " + str(check_victory(board)))
+    print("Victory status:", check_victory(board))
+    print("Number of blue pieces =", num_enemy(board))
     print(render_board(board, ansi=True))
 
     directions = [(0, -1), (0, -1), (0, -1), (-1, 0), (0, 1), (1, 0)]
@@ -23,14 +24,16 @@ def main():
         curr_dir = directions[i]
         curr_pos = positions[i]
         _ = spread(curr_pos, curr_dir, board)
-        print("MOVE " + str(i+1) + ": ")
+        print("MOVE", str(i+1) + ": ")
         print("Victory status: " + str(check_victory(board)))
+        print("Number of blue pieces =", num_enemy(board))
         print(render_board(board, ansi=True))
 
     ret = spread((0, 6), (0, 1), board)
-    print("\nPiece NOT existing hence ret for SPREAD is " + str(ret))
+    print("\nPiece NOT existing hence ret for SPREAD is", ret)
     ret = spread((5, 6), (1, 0), board)
-    print("Piece existing hence ret for SPREAD is " + str(ret))
+    print("Piece existing hence ret for SPREAD is", ret)
+    print("Number of blue pieces =", num_enemy(board))
     print(render_board(board, ansi=True))
 
 

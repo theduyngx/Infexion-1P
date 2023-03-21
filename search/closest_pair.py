@@ -1,6 +1,6 @@
 # Python Equivalent
-import math
-from cell import Cell
+from math import sqrt
+from board import *
 
 INF = 9999
 
@@ -8,16 +8,18 @@ INF = 9999
 def dist(c1: Cell, c2: Cell) -> float:
     """
     Euclidean distance between 2 cells on the board.
+
     @param c1: cell 1
     @param c2: cell 2
     @return  : euclidean distance between the cells
     """
-    return math.sqrt((c1.x - c2.x) ** 2 + (c1.y - c2.y) ** 2)
+    return sqrt((c1.x - c2.x) ** 2 + (c1.y - c2.y) ** 2)
 
 
 def closest_brute_force(cells: [Cell]) -> (Cell, Cell, float):
     """
     Brute force method to find the closest distance between 2 cells on the board.
+
     @param cells : list of cells to brute force and find the closest distance
     @return      : cell of the first piece,
                    cell of the second piece,
@@ -29,7 +31,8 @@ def closest_brute_force(cells: [Cell]) -> (Cell, Cell, float):
     for i in range(n):
         for j in range(i + 1, n):
             curr_dist = dist(cells[i], cells[j])
-            if curr_dist < min_dist:
+            # if closer distance found and only if type of pieces are different
+            if curr_dist < min_dist and cells[i].type != cells[j].type:
                 min_dist = curr_dist
                 ret = (cells[i], cells[j], min_dist)
     return ret
@@ -39,6 +42,7 @@ def closest_strip(strip: [Cell], sd: float) -> (Cell, Cell, float):
     """
     Find distance between the closest cells of a strip of a given width. The cells in
     strip are sorted by y-coordinate.
+
     @param strip: the given strip (a stripped down area of only viable cells).
     @param sd   : the given width of the strip
     @return     : cell of the first piece,
@@ -54,7 +58,8 @@ def closest_strip(strip: [Cell], sd: float) -> (Cell, Cell, float):
             if (strip[j].y - strip[i].y) >= min_dist:
                 break
             curr_dist = dist(strip[i], strip[j])
-            if curr_dist < min_dist:
+            # if closer distance found and only if type of pieces are different
+            if curr_dist < min_dist and strip[i].type != strip[j].type:
                 min_dist = curr_dist
                 ret = (strip[i], strip[j], min_dist)
     return ret
@@ -122,8 +127,11 @@ def closest_util(xs: [Cell], ys: [Cell]) -> (Cell, Cell, float):
 def closest(cells: [Cell]) -> (Cell, Cell, float):
     """
     Finds the closest distance of any given 2 pieces of opposite colors.
-    @param cells:
-    @return:
+
+    @param cells : list of all occupied cells, essentially the current state of the board
+    @return      : cell of the first piece,
+                   cell of the second piece,
+                   the distance from said cells (which would be the closest)
     """
     xs = sorted(cells, key=lambda p: p.x)
     ys = sorted(cells, key=lambda p: p.y)
@@ -140,7 +148,7 @@ if __name__ == '__main__':
         (1, 1): ("b", 1),
         (3, 2): ("b", 1),
         (1, 3): ("b", 3),
-        (2, 0): ("r", 3),
+        (4, 1): ("r", 3),
         (2, 4): ("b", 6),
         (2, 5): ("b", 3)
     }
@@ -149,3 +157,4 @@ if __name__ == '__main__':
         P.append(Cell(pos, board[pos]))
     cell1, cell2, distance = closest(P)
     print("The smallest distance is", distance, "for", Cell.to_tuple(cell1), "and", Cell.to_tuple(cell2))
+    print(type(board.values()))

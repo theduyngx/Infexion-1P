@@ -1,12 +1,11 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
+from search.board import *
 from utils import render_board
 
 # constants
 INF     = 9999
-PLAYER  = "r"
-ENEMY   = "b"
 SIZE    = 7
 MAX_PTS = SIZE ** 2
 
