@@ -140,7 +140,7 @@ def closest(cells: [Cell]) -> (Cell, Cell, float):
     return closest_util(xs, ys)
 
 
-# Driver program to test above functions
+# testing
 if __name__ == '__main__':
     board = {
         (5, 6): ("r", 2),
@@ -157,4 +157,3 @@ if __name__ == '__main__':
         P.append(Cell(pos, board[pos]))
     cell1, cell2, distance = closest(P)
     print("The smallest distance is", distance, "for", Cell.to_tuple(cell1), "and", Cell.to_tuple(cell2))
-    print(type(board.values()))

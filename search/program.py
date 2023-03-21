@@ -8,9 +8,8 @@ from utils import render_board
 INF     = 9999
 SIZE    = 7
 MAX_PTS = SIZE ** 2
-
-x_dir = [0, -1, -1, 0, 1, 1]
-y_dir = [1, 1, 0, -1, -1, 0]
+x_dir   = [0, -1, -1, 0, 1, 1]
+y_dir   = [1, 1, 0, -1, -1, 0]
 all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
 
 

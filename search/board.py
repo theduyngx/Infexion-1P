@@ -37,7 +37,6 @@ class Cell:
         return self.x, self.y, self.type
 
 
-# probably best to merge with function with check_victory since we have to check either way
-# so check_victory returns 0 = success
+# function to get the total number of enemies currently in state
 def get_num_enemy(state: dict[tuple, tuple]) -> int:
     return sum(map(lambda piece: piece[0] == ENEMY, state.values()))
