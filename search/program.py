@@ -5,8 +5,8 @@ from utils import render_board
 
 # constants
 INF     = 9999
-PLAYER  = 'r'
-ENEMY   = 'b'
+PLAYER  = "r"
+ENEMY   = "b"
 SIZE    = 7
 MAX_PTS = SIZE ** 2
 
@@ -18,7 +18,6 @@ all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
 def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     """
     Get all roots that player can start with, given only SPREAD action is permitted.
-
     @param state: The provided state of the board.
     @return     : a list of (x, y) positions of all possible start move (root).
     """
@@ -108,7 +107,6 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
 def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool:
     """
     SPREAD movement for a specified piece.
-
     @param position : The specified position.
     @param direction: The direction in tuple indicating which hexagon neighbor is to.
     @param state    : The provided state of the board.
@@ -136,7 +134,6 @@ def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool
 def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> tuple:
     """
     Returns the new position for iteration. Private function only called by SPREAD.
-
     @param position : The specified position.
     @param direction: The specified direction.
     @param state    : The provided state of the board.
@@ -172,7 +169,6 @@ def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> t
 def check_victory(state: dict[tuple, tuple]) -> bool:
     """
     Goal test - whether player has spread to all blue pieces.
-
     @param state: The provided state of the board.
     @return     : whether the state pass goal test.
     """

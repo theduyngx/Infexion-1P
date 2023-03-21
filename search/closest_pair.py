@@ -1,46 +1,50 @@
 # Python Equivalent
 import math
+from cell import Cell
 
 INF = 9999
 
 
-# A structure to represent a Point in 2D plane
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    # def __init__(self, tup: tuple):
-    #     (x, y) = tup
-    #     self.x = x
-    #     self.y = y
-
-    def to_tuple(self):
-        return self.x, self.y
+def dist(c1: Cell, c2: Cell) -> float:
+    """
+    Euclidean distance between 2 cells on the board.
+    @param c1: cell 1
+    @param c2: cell 2
+    @return  : euclidean distance between the cells
+    """
+    return math.sqrt((c1.x - c2.x) ** 2 + (c1.y - c2.y) ** 2)
 
 
-# A utility function to find the distance between two points
-def dist(p1: Point, p2: Point) -> float:
-    return math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
-
-
-# A Brute Force method to return the smallest distance between two points in P[] of size n
-def brute_force(points: [Point], n: int) -> (Point, Point, float):
+def closest_brute_force(cells: [Cell]) -> (Cell, Cell, float):
+    """
+    Brute force method to find the closest distance between 2 cells on the board.
+    @param cells : list of cells to brute force and find the closest distance
+    @return      : cell of the first piece,
+                   cell of the second piece,
+                   the distance from said cells (which would be the closest)
+    """
     global ret
     min_dist = INF
+    n = len(cells)
     for i in range(n):
         for j in range(i + 1, n):
-            curr_dist = dist(points[i], points[j])
+            curr_dist = dist(cells[i], cells[j])
             if curr_dist < min_dist:
                 min_dist = curr_dist
-                ret = (points[i], points[j], min_dist)
+                ret = (cells[i], cells[j], min_dist)
     return ret
 
 
-# A utility function to find distance between the closest points of strip of a given size.
-# All points in strip[] are sorted according to y coordinate. They all have upper bound on
-# minimum distance as d. Note that this method is O(n), as inner loop runs at most n times.
-def strip_closest(strip: [Point], sd: float) -> (Point, Point, float):
+def closest_strip(strip: [Cell], sd: float) -> (Cell, Cell, float):
+    """
+    Find distance between the closest cells of a strip of a given width. The cells in
+    strip are sorted by y-coordinate.
+    @param strip: the given strip (a stripped down area of only viable cells).
+    @param sd   : the given width of the strip
+    @return     : cell of the first piece,
+                  cell of the second piece,
+                  the distance from said cells (which would be the closest)
+    """
     global ret
     min_dist = sd
     size = len(strip)
@@ -56,75 +60,92 @@ def strip_closest(strip: [Point], sd: float) -> (Point, Point, float):
     return ret
 
 
-# A recursive function to find the smallest distance. The array xs contains all points sorted
-# according to x coordinates and ys contains all points sorted according to y coordinates
-def closest_util(xs: [Point], ys: [Point], n: int) -> (Point, Point, float):
-    global pd1, pd2, d
+def closest_util(xs: [Cell], ys: [Cell]) -> (Cell, Cell, float):
+    """
+    Check recursively for the closest distance - recursion is based on the band surrounding the
+    vertical midpoint line where the interested cells are is reduced whenever a closer distance
+    is found.
 
+    @param xs : list of cells sorted by x-coordinate
+    @param ys : list of cells sorted by y-coordinate
+    @return   : cell of the first piece,
+                cell of the second piece,
+                the distance from said cells (which would be the closest)
+    """
+
+    global cd1, cd2, d
+    n = len(ys)
     if n <= 3:
-        return brute_force(xs, n)
+        return closest_brute_force(xs)
     mid = n // 2
     mid_point = xs[mid]
 
-    # Divide points in y sorted array around the vertical line.
-    # Assumption: All x coordinates are distinct.
-    ysl = [None] * mid          # y sorted points on left of vertical line
-    ysr = [None] * (n - mid)    # y sorted points on right of vertical line
-    li = ri = 0                 # indexes of left and right sub-arrays
+    ysl_size = mid
+    ysr_size = n - mid
+    ysl = [None] * ysl_size     # y sorted cells on left of vertical line
+    ysr = [None] * ysr_size     # y sorted cells on right of vertical line
+    li = ri = 0                 # indices of left and right sub-arrays, respectively
     for i in range(n):
-        if li < mid and (ys[i].x < mid_point.x or (ys[i].x == mid_point.x and ys[i].y < mid_point.y)):
+        if li < ysl_size and (ys[i].x < mid_point.x or (ys[i].x == mid_point.x and ys[i].y < mid_point.y)):
             ysl[li] = ys[i]
             li += 1
-        elif ri < n - mid:
+        elif ri < ysr_size:
             ysr[ri] = ys[i]
             ri += 1
 
-    # Consider the vertical line passing through the middle point calculate the smallest distance dl
-    # on left of middle point and dr on right side
-    pl1, pl2, dl = closest_util(xs, ysl, mid)
-    pr1, pr2, dr = closest_util(xs[mid:], ysr, n - mid)
+    # Consider the vertical line passing through the middle cell
+    # --> calculate the closest distance dl on LHS and dr on RHS
+    cl1, cl2, dl = closest_util(xs, ysl)
+    cr1, cr2, dr = closest_util(xs[mid:], ysr)
     if dl < dr:
         d   = dl
-        pd1 = pl1
-        pd2 = pl2
+        cd1 = cl1
+        cd2 = cl2
     else:
         d   = dr
-        pd1 = pr1
-        pd2 = pr2
+        cd1 = cr1
+        cd2 = cr2
 
-    # Build an array strip[] that contains points close (closer than d) to the line passing through
-    # the middle point
+    # strip is list containing cells closer than d to the vertical midpoint line
     strip = []
     for i in range(n):
         if abs(ys[i].x - mid_point.x) < d:
             strip.append(ys[i])
 
-    # Find the closest points in strip.  Return the minimum of d and closest distance is strip[]
-    ps1, ps2, s = strip_closest(strip, d)
+    # Find the closest cells in strip
+    cs1, cs2, s = closest_strip(strip, d)
     if d < s:
-        return pd1, pd2, d
-    return ps1, ps2, s
+        return cd1, cd2, d
+    return cs1, cs2, s
 
 
-def closest(points: [Point], n: int) -> (Point, Point, float):
+def closest(cells: [Cell]) -> (Cell, Cell, float):
     """
     Finds the closest distance of any given 2 pieces of opposite colors.
-
-    @param points:
-    @param n:
+    @param cells:
     @return:
     """
-    xs = sorted(points, key=lambda p: p.x)
-    ys = sorted(points, key=lambda p: p.y)
+    xs = sorted(cells, key=lambda p: p.x)
+    ys = sorted(cells, key=lambda p: p.y)
 
     # Use recursive function closest_util() to find the smallest distance
-    return closest_util(xs, ys, n)
+    return closest_util(xs, ys)
 
 
 # Driver program to test above functions
 if __name__ == '__main__':
-    P = [Point(2, 3), Point(12, 3), Point(40, 50), Point(5, 1), Point(12, 10), Point(3, 4), Point(16, 2), Point(55, 2),
-         Point(54.5, 1.9), Point(0, 2), Point(0.01, 5), Point(0.01, 1.99), Point(6, 6), Point(60, 60)]
-    length = len(P)
-    point1, point2, distance = closest(P, length)
-    print("The smallest distance is", distance, "for", Point.to_tuple(point1), "and", Point.to_tuple(point2))
+    board = {
+        (5, 6): ("r", 2),
+        (1, 0): ("b", 2),
+        (1, 1): ("b", 1),
+        (3, 2): ("b", 1),
+        (1, 3): ("b", 3),
+        (2, 0): ("r", 3),
+        (2, 4): ("b", 6),
+        (2, 5): ("b", 3)
+    }
+    P = []
+    for pos in board:
+        P.append(Cell(pos, board[pos]))
+    cell1, cell2, distance = closest(P)
+    print("The smallest distance is", distance, "for", Cell.to_tuple(cell1), "and", Cell.to_tuple(cell2))
