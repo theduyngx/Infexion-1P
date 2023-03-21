@@ -199,3 +199,93 @@ def check_victory(state: dict[tuple, tuple]) -> bool:
     Goal test - whether player has spread to all blue pieces.
     """
     return ENEMY not in map(lambda tup: tup[0], state.values())
+
+# --------------------------------- RAJA TESTING FUNCTIONS ----------------------------------------------------
+
+# MOVES: list of tuples containing position and direction
+def RAJA_dfs_limited(state: dict[tuple, tuple], depth: int, moves: list) -> tuple:
+# def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
+    """
+    Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
+
+    Arguments:
+    state -- The provided state of the board.
+    root  -- Start position.
+    depth -- Depth threshold for DFS.
+
+    Output:
+    a list of moves to reach to goal,
+    a score that counts the number of steps to reach goal,
+    a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
+    """
+
+    # HERE: get all possible move from a given root
+
+    # x_coords = [0, -1, -1, 0, 1, 1]
+    # y_coords = [1, 1, 0, -1, -1, 0]
+
+    if check_victory(state=state):
+        return depth, False
+
+    for key in state.keys():
+        for dir in all_dir:
+            diff_state = dict(state)
+            check = spread(key, dir, state=diff_state)
+            if check:
+                moves.append((key, dir))
+                RAJA_dfs_limited(diff_state, depth-1, moves=moves)
+                moves = moves[:-1]
+
+    return INF, True
+
+def RAJA_ids_score(state: dict[tuple, tuple]) -> tuple:
+# def ids_score(state: dict[tuple, tuple], root: tuple) -> ([tuple], int):
+    """
+    Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
+
+    Arguments:
+    state -- The provided state of the board.
+    root  -- Start position.
+
+    Output:
+    list of optimal moves to reach to goal (given specified root)
+    and the additive score (number of said moves)
+    """
+    moveList = []
+    depth = 0
+    while True:
+        score, finished = RAJA_dfs_limited(state, depth, moveList)
+        if score != INF:
+            return moveList, score
+        elif finished:
+            return [], INF
+        depth += 1
+
+
+def RAJA_search(state: dict[tuple, tuple]) -> list[tuple]:
+    """
+    This is the entry point for your submission. The input is a dictionary of cell states, where
+    the keys are tuples of (r, q) coordinates, and the values are tuples of (p, k) cell states. The
+    output should be a list of  actions, where each action is a tuple of (r, q, dr, dq) coordinates.
+
+    Arguments:
+    state -- Board's initial state.
+
+    Output:
+    the list of positions representing optimal moves
+    """
+
+    # The render_board function is useful for debugging -- it will print out a board state in a
+    # human-readable format. Try changing the ansi argument to True to see a colour-coded version
+    # (if your terminal supports it).
+    print(render_board(state, ansi=False))
+
+    # CODE
+    # get all moves
+    # all_roots = get_all_roots(state)
+    
+    min_ret, _ = RAJA_ids_score(state=state)
+
+    # Here we're returning "hardcoded" actions for the given test.csv file.
+    # Of course, you'll need to replace this with an actual solution...
+    return min_ret

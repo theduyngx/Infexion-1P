@@ -1,5 +1,5 @@
 from utils import render_board
-from program import spread, check_victory
+from program import spread, check_victory, RAJA_search
 
 
 def main():
@@ -39,6 +39,18 @@ def main():
     if 'd' not in d or d['z'][0] != 1:
         print("Lazy!")
 
+# RAJA: TESTS IDS IMPLEMENTATION
+def main2():
+    board = {
+        (5, 6): ("r", 2),
+        (1, 0): ("b", 2),
+        (1, 1): ("b", 1),
+        (3, 2): ("b", 1),
+        (1, 3): ("b", 3)
+    }
+    print(RAJA_search(board))
+    return
 
 if __name__ == '__main__':
-    main()
+    # main()
+    main2()
