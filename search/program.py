@@ -126,7 +126,7 @@ def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool
 
     Arguments:
     position -- the specified position.
-    direction --
+    direction -- 1 of the 6 possible move directions, stored as tuple
     state -- current board's state.
 
     Output:
@@ -161,7 +161,7 @@ def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> t
 
     Arguments:
     position -- the specified position.
-    direction --
+    direction -- 1 of the 6 possible move directions, stored as tuple
     state -- current board's state.
 
     Output:
