@@ -4,11 +4,11 @@
 from utils import render_board
 
 # constants
-SIZE = 7
+INF     = 9999
+PLAYER  = 'r'
+ENEMY   = 'b'
+SIZE    = 7
 MAX_PTS = SIZE ** 2
-INF = 9999
-PLAYER = 'r'
-ENEMY = 'b'
 
 x_dir = [0, -1, -1, 0, 1, 1]
 y_dir = [1, 1, 0, -1, -1, 0]
@@ -19,11 +19,8 @@ def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     """
     Get all roots that player can start with, given only SPREAD action is permitted.
 
-    Arguments:
-    state -- The provided state of the board.
-
-    Output:
-    a list of (x, y) positions of all possible start move (root).
+    @param state: The provided state of the board.
+    @return     : a list of (x, y) positions of all possible start move (root).
     """
     all_roots = []
     total_score = 0
@@ -41,15 +38,12 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple],
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
-    Arguments:
-    state -- The provided state of the board.
-    root  -- Start position.
-    depth -- Depth threshold for DFS.
-
-    Output:
-    a list of moves to reach to goal,
-    a score that counts the number of steps to reach goal,
-    a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
+    @param state: The provided state of the board.
+    @param root : Start position.
+    @param depth: Depth threshold for DFS.
+    @return     : a list of moves to reach to goal,
+                  a score that counts the number of steps to reach goal,
+                  a boolean value indicating whether there may be remaining child nodes yet traversed.
     """
 
     # HERE: get all possible move from a given root
@@ -64,13 +58,10 @@ def ids_score(state: dict[tuple, tuple], root: tuple) -> ([tuple], int):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
-    Arguments:
-    state -- The provided state of the board.
-    root  -- Start position.
-
-    Output:
-    list of optimal moves to reach to goal (given specified root)
-    and the additive score (number of said moves)
+    @param state: The provided state of the board.
+    @param root : Start position.
+    @return     : list of optimal moves to reach to goal (given specified root),
+                  the additive score (number of said moves)
     """
     depth = 0
     while True:
@@ -88,17 +79,12 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
     the keys are tuples of (r, q) coordinates, and the values are tuples of (p, k) cell states. The
     output should be a list of  actions, where each action is a tuple of (r, q, dr, dq) coordinates.
 
-    Arguments:
-    state -- Board's initial state.
-
-    Output:
-    the list of positions representing optimal moves
+    @param state: The provided state of the board.
+    @return     : the list of positions representing optimal moves
     """
 
-    # The render_board function is useful for debugging -- it will print out a board state in a
-    # human-readable format. Try changing the ansi argument to True to see a colour-coded version
-    # (if your terminal supports it).
-    print(render_board(state, ansi=False))
+    # render the board
+    print(render_board(state, ansi=True))
 
     # CODE
     # get all moves
@@ -114,7 +100,6 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
             min_ret = ret
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
-    # Of course, you'll need to replace this with an actual solution...
     return min_ret
 
 
@@ -124,21 +109,14 @@ def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool
     """
     SPREAD movement for a specified piece.
 
-    Arguments:
-    position -- the specified position.
-    direction --
-    state -- current board's state.
-
-    Output:
-    boolean indicating whether SPREAD was successful or not
+    @param position : The specified position.
+    @param direction: The direction in tuple indicating which hexagon neighbor is to.
+    @param state    : The provided state of the board.
+    @return         : boolean indicating whether SPREAD was successful or not
     """
 
-    # Check first if position in dictionary/is a red piece
-    if position not in state or state[position][0] == ENEMY:
-        return False
-
-    # also another safety protocol check if direction is valid
-    if direction not in all_dir:
+    # invalid if position not in dictionary or has an enemy, or if direction is invalid
+    if position not in state or state[position][0] == ENEMY or direction not in all_dir:
         return False
 
     # Since a valid position to use, store POWER
@@ -159,13 +137,10 @@ def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> t
     """
     Returns the new position for iteration. Private function only called by SPREAD.
 
-    Arguments:
-    position -- the specified position.
-    direction --
-    state -- current board's state.
-
-    Output:
-    new position
+    @param position : The specified position.
+    @param direction: The specified direction.
+    @param state    : The provided state of the board.
+    @return         : the output new position.
     """
 
     # get new position
@@ -197,5 +172,8 @@ def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> t
 def check_victory(state: dict[tuple, tuple]) -> bool:
     """
     Goal test - whether player has spread to all blue pieces.
+
+    @param state: The provided state of the board.
+    @return     : whether the state pass goal test.
     """
     return ENEMY not in map(lambda tup: tup[0], state.values())

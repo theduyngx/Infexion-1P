@@ -1,0 +1,152 @@
+function h(state):
+    num_enemy = get_num_enemy(state)
+    state_cpy = copy(state)
+    h_dist = 0
+    for i from num_enemy-1 to 0:
+        (PLAYER, ENEMY, dist) = closest_pair(state_cpy)
+        h_dist += dist
+        state_cpy: change ENEMY 'b' to PLAYER 'r'
+    return h_dist
+
+
+function A_star(state, root):
+    discovered = init_min_heap()	// pq for discovered nodes, min-heap to check quickly if leaf > other leafs
+    parents    = init_dict()		// the immediate parent of a current node
+    g_cost     = init_dict()		// real cumulative cost from root
+    f_cost     = init_dict()		// best guess f = g + h
+
+    discovered.push(state)		// init state has now been discovered
+    g_cost[root] = 0
+    f_cost[root] = h(state, state)
+
+    while discovered not empty:
+        curr_state = discovered.push()
+        if goal(curr_state):
+            return reconstruct_path(parents, curr_state)
+
+        for each dir in all_dir:			  // for each child node of current
+            new_state = curr_state.copy()
+            spread(root, dir, new_state)
+            g_cost_accum = g_cost(curr_state) + 1 // true cost from init to new_state via curr_state
+
+            if new_state not in g_cost or g_cost_accum < g_cost[new_state]:
+                parent(new_state) = curr_state
+                g_cost[new_state] = g_cost_accum
+                f_cost[new_state] = g_cost_accum + h(new_state)
+                if new_state not in discovered:
+                    discovered.push(new_state)
+                h(new_state)
+    return NULL
+
+
+// ------------------------------------------------------------------------- //
+
+
+# Python Equivalent
+import math
+
+INF = 9999
+X = 0
+Y = 1
+
+
+# A structure to represent a Point in 2D plane
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+# A utility function to find the distance between two points
+def dist(p1, p2):
+    return math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+
+
+# A Brute Force method to return the smallest distance between two points
+# in P[] of size n
+def brute_force(points, n):
+    min_dist = INF
+    for i in range(n):
+        for j in range(i + 1, n):
+            if dist(points[i], points[j]) < min_dist:
+                min_dist = dist(points[i], points[j])
+    return min_dist
+
+
+# A utility function to find distance between the closest points of strip of a given size.
+# All points in strip[] are sorted according to y coordinate. They all have upper bound on
+# minimum distance as d. Note that this method is O(n), as inner loop runs at most n times.
+def strip_closest(strip, size, d):
+    min_dist = d  # Initialize the minimum distance as d
+
+    # Pick all points one by one and try the next points till difference between y-coords
+    # is smaller than d. This is a proven fact that this loop runs at most n times
+    for i in range(size):
+        for j in range(i + 1, size):
+            if (strip[j].y - strip[i].y) < min_dist:
+                if dist(strip[i], strip[j]) < min_dist:
+                    min_dist = dist(strip[i], strip[j])
+    return min_dist
+
+
+# A recursive function to find the smallest distance. The array xs contains all points sorted
+# according to x coordinates and ys contains all points sorted according to y coordinates
+def closest_util(xs: [(int, int)], ys: [(int, int)], n):
+    # If there are 2 or 3 points, then use brute force
+    # if n <= 3:
+    #     return brute_force(xs, n)
+
+    # Find the middle point
+    mid = n // 2
+    mid_point = xs[mid]
+
+    # Divide points in y sorted array around the vertical line.
+    ysl = [None] * mid          # y sorted points on left of vertical line
+    ysr = [None] * (n - mid)    # y sorted points on right of vertical line
+    li = ri = 0                 # indexes of left and right sub-arrays
+    for i in range(n):
+        y_pos = ys[i]
+        if (y_pos[X] < mid_point[X] or (y_pos[X] == mid_point[X] and y_pos[Y] < mid_point[Y])) and li < mid:
+            ysl[li] = ys[i]
+            li += 1
+        else:
+            ysr[ri] = ys[i]
+            ri += 1
+
+    # Consider the vertical line passing through the middle point calculate the smallest distance dl
+    # on left of middle point and dr on right side
+    dl = closest_util(xs, ysl, mid)
+    dr = closest_util(xs[mid:], ysr, n - mid)
+
+    # Find the smaller of two distances
+    d = min(dl, dr)
+
+    # Build an array strip[] that contains points close (closer than d) to the line passing through
+    # the middle point
+    strip = [None] * n
+    j = 0
+    for i in range(n):
+        if abs(ys[i].x - mid_point.x) < d:
+            strip[j] = ys[i]
+            j += 1
+
+    # Find the closest points in strip.  Return the minimum of d and closest distance is strip[]
+    return strip_closest(strip, j, d)
+
+
+# The main function that finds the smallest distance. This method mainly uses closest_util()
+def closest(points: [(int, int)], n):
+    xs = points.sort(key=lambda tup: tup[X])
+    ys = points.sort(key=lambda tup: tup[Y])
+
+    # Use recursive function closest_util() to find the smallest distance
+    return closest_util(xs, ys, n)
+
+
+# Driver program to test above functions
+if __name__ == '__main__':
+    P = [(2, 3), (12, 30), (40, 50), (5, 1), (12, 10), (3, 4), (6, 1), (8, 2)]
+    length = len(P)
+    print("The smallest distance is", closest(P, length))
+
+        

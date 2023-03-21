@@ -15,7 +15,7 @@ def main():
     }
     print("\nINIT: ")
     print("Victory status: " + str(check_victory(board)))
-    print(render_board(board))
+    print(render_board(board, ansi=True))
 
     directions = [(0, -1), (0, -1), (0, -1), (-1, 0), (0, 1), (1, 0)]
     positions  = [(2,  0), (2,  6), (2,  5), (2,  0), (1, 0), (2, 2)]
@@ -25,19 +25,13 @@ def main():
         _ = spread(curr_pos, curr_dir, board)
         print("MOVE " + str(i+1) + ": ")
         print("Victory status: " + str(check_victory(board)))
-        print(render_board(board))
+        print(render_board(board, ansi=True))
 
     ret = spread((0, 6), (0, 1), board)
     print("\nPiece NOT existing hence ret for SPREAD is " + str(ret))
     ret = spread((5, 6), (1, 0), board)
     print("Piece existing hence ret for SPREAD is " + str(ret))
-    print(render_board(board))
-
-    # ------------------- testing ------------------- #
-    d = {'a': (1, 2), 'b': (3, 4), 'c': (5, 6)}
-    print(1 in map(lambda tup: tup[0], d.values()))
-    if 'd' not in d or d['z'][0] != 1:
-        print("Lazy!")
+    print(render_board(board, ansi=True))
 
 
 if __name__ == '__main__':
