@@ -36,8 +36,8 @@ def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
         return []
     return all_roots
 
-
-def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
+def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
+# def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
@@ -59,8 +59,8 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple],
 
     return [], INF, True
 
-
-def ids_score(state: dict[tuple, tuple], root: tuple) -> ([tuple], int):
+def ids_score(state: dict[tuple, tuple], root: tuple) -> tuple:
+# def ids_score(state: dict[tuple, tuple], root: tuple) -> ([tuple], int):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
