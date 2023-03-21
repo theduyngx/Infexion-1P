@@ -30,7 +30,8 @@ def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
         return []
     return all_roots
 
-def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
+def dfs_limited(state: dict[tuple, tuple], moves: list, root: tuple, depth: int) -> tuple:
+# def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
 # def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple], int, bool):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
@@ -41,18 +42,56 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> tuple:
     depth -- Depth threshold for DFS.
 
     Output:
-    a list of moves to reach to goal,
-    a score that counts the number of steps to reach goal,
+    a list of moves to reach to goal -> ({Current Position}, {Direction})
+    a score that counts the number of spreads to reach goal,
     a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
     """
+
+
+
 
     # HERE: get all possible move from a given root
 
     xCoords = [0, -1, -1, 0, 1, 1]
     yCoords = [1, 1, 0, -1, -1, 0]
 
+    # Have to iterate through all the keys
+    for key in state.keys():
+        if state[key][0] == 'r':
+            for i in range(len(xCoords)):
+                newState, _ = makeMove(key, (xCoords[i], yCoords[i]), state)
+                moves.append((key, (xCoords[i], yCoords[i])))
+                return dfs_limited(newState, moves, )
+                moves = moves[:-1]
+
     return (), INF, True
 
+def RAJA_dfs_limited(state: dict[tuple, tuple], moves: list, depth: int) -> tuple:
+    """
+    Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
+
+    Arguments:
+    state -- The provided state of the board.
+    moves -- Recursively added onto or deleted until depth reached
+    depth -- tracks how deep we are
+
+    Output:
+    a list of moves to reach to goal -> ({Current Position}, {Direction})
+    a score that counts the number of spreads to reach goal,
+    a boolean value indicating whether there may be any remaining child nodes yet to be traversed.
+    """
+    
+    # Establish coordinates of directions
+    xCoords = [0, -1, -1, 0, 1, 1]
+    yCoords = [1, 1, 0, -1, -1, 0]
+
+    for key in state.keys():
+        if state[key][0] == 'r':
+            for i in range(len(xCoords)):
+                newState, _ = makeMove(key, (xCoords[i], yCoords[i]), state)
+                moves.append((key, (xCoords[i], yCoords[i])))
+                dfs_limited(newState, moves, )
+                moves = moves[:-1]
 
 def ids_score(state: dict[tuple, tuple], root: tuple) -> tuple:
 # def ids_score(state: dict[tuple, tuple], root: tuple) -> (int, [tuple]):
@@ -107,7 +146,7 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
     # Of course, you'll need to replace this with an actual solution...
     return min_ret
 
-# RAJA: HELPER FUNCTIONS
+# ----------------------------------------------------------------------- RAJA: HELPER FUNCTIONS -----------------------------------------------------------------------
 
 # Main function to move pieces
 # For now returns state and a boolean indicating if it was updated
@@ -120,8 +159,7 @@ def spread(position: tuple, direction:tuple, state: dict[tuple, tuple]) -> tuple
     currPower = state[position][1]
     currPos = position
 
-    # Now decrement power and each time place
-    # a piece in a new position
+    # Place a piece in each new position
     while currPower != 0:
         state, currPos = makeMove(currPos, direction, state)
         currPower-=1

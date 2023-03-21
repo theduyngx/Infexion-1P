@@ -18,10 +18,13 @@ def main():
     print("OLD BOARD: ")
     print(render_board(board))
     # Put all possible edits here
+    
     # currDir = (xCoords[0], yCoords[1])
     currDir = (xCoords[3], yCoords[3])
+
     # board, _ = spread((5,6), currDir, board)
     board, _ = spread((2,0), currDir, board)
+
     print("NEW BOARD: ")
     print(render_board(board))
     return
