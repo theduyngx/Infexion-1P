@@ -1,8 +1,5 @@
 from utils import render_board
-from program import spread, make_move
-
-x_coords = [0, -1, -1, 0, 1, 1]
-y_coords = [1, 1, 0, -1, -1, 0]
+from program import spread, check_victory
 
 
 def main():
@@ -16,16 +13,31 @@ def main():
         (2, 4): ("b", 6),
         (2, 5): ("b", 3)
     }
-    print("OLD BOARD: ")
+    print("\nINIT: ")
+    print("Victory status: " + str(check_victory(board)))
     print(render_board(board))
-    # Put all possible edits here
-    # curr_dir = (xCoords[0], yCoords[1])
-    curr_dir = (x_coords[3], y_coords[3])
-    # board, _ = spread((5,6), curr_dir, board)
-    board, _ = spread((2, 0), curr_dir, board)
-    print("NEW BOARD: ")
+
+    directions = [(0, -1), (0, -1), (0, -1), (-1, 0), (0, 1), (1, 0)]
+    positions  = [(2,  0), (2,  6), (2,  5), (2,  0), (1, 0), (2, 2)]
+    for i in range(len(directions)):
+        curr_dir = directions[i]
+        curr_pos = positions[i]
+        _ = spread(curr_pos, curr_dir, board)
+        print("MOVE " + str(i+1) + ": ")
+        print("Victory status: " + str(check_victory(board)))
+        print(render_board(board))
+
+    ret = spread((0, 6), (0, 1), board)
+    print("\nPiece NOT existing hence ret for SPREAD is " + str(ret))
+    ret = spread((5, 6), (1, 0), board)
+    print("Piece existing hence ret for SPREAD is " + str(ret))
     print(render_board(board))
-    return
+
+    # ------------------- testing ------------------- #
+    d = {'a': (1, 2), 'b': (3, 4), 'c': (5, 6)}
+    print(1 in map(lambda tup: tup[0], d.values()))
+    if 'd' not in d or d['z'][0] != 1:
+        print("Lazy!")
 
 
 if __name__ == '__main__':
