@@ -56,7 +56,7 @@ def main3():
     }
     # for dir in all_dir:
     dir = all_dir[4]
-    print(check_loop(board, (5, 6), dir))
+    # print(check_loop(board, (5, 6), dir))
     return
 
 def a_star_test():
