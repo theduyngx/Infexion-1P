@@ -75,16 +75,15 @@ def a_star_test():
 
 
 def main4():
-    st = time.time()
     board = {
         # (2,2): ("r", 3),
         # (2,1): ("b", 1),
         # (2,0): ("b", 1),
         # (3,6): ("r", 1),
-        (4,2): ("r", 1),
+        (4,4): ("r", 1),
         (4,5): ("r", 1),
         (5,4): ("b", 3),
-        (5,3): ("b", 1),
+        (5,3): ("b", 4),
         (5,2): ("b", 1),
         (5,1): ("b", 6)
         
@@ -93,12 +92,15 @@ def main4():
     print(render_board(board))
     sequence = search(board)
     print(sequence)
-    et = time.time()
-    print(f'TOTAL TIME TAKEN: {et-st}')
     return
 
 if __name__ == "__main__":
+    st = time.time()
+
     # main()
     # main3()
     # a_star_test()
     main4()
+    
+    et = time.time()
+    print(f'TOTAL TIME TAKEN: {et-st}')
