@@ -31,7 +31,6 @@ def apply_scalar_dir(a:tuple, scalar:int):
         new_tup[i] = new_val
     return tuple(new_tup)
 
-
 # CALCULATE DISTANCE BETWEEN 2 POINTS
 def calc_distance(a: tuple, b: tuple):
     # First calculate the distances betweenn the points
@@ -101,6 +100,23 @@ def get_shortest_distance_2(board: dict[tuple, tuple]) -> tuple:
         
     return (use_red[0], use_red[1], red_min_dir[0], red_min_dir[1])
 
+# HEURISTIC FUNCTION
+def get_heuristic(red: tuple, blue: tuple, dir: tuple, board: dict[tuple, tuple]) -> tuple:
+    # Store the power of the current red piece
+    curr_power = board[red][1]
+    
+    # Position the red piece to the farthest possible position after
+    # it spreads to specified direction
+    new_pos = add_direction(red, apply_scalar_dir(dir, curr_power))
+
+    # Calculate the adjacent blues and the blue piece with the highest power
+    adj_blues, max_blue = adjacent_blues(board, red, dir)
+
+    # Heuristic prioritizes any blues that is within reach of the red piece in direction
+    # If there are no blue pieces within reach, just calculate the shortest distance to a blue piece
+    curr_dist = calc_distance(new_pos, blue) - (2*adj_blues)
+    return curr_dist, max_blue
+
 def get_shortest_distance_1(board: dict[tuple, tuple]) -> tuple:
     # Need to get all the blue pieces
     
@@ -113,21 +129,12 @@ def get_shortest_distance_1(board: dict[tuple, tuple]) -> tuple:
     reds = [item[0] for item in board.items() if item[1][0] == RED]
 
     for red in reds:
-        # Store the current POWER of the red piece
-        curr_power = board[red][1]
-
         # If the given red piece does end up being the ideal,
         # need to store the direction to move it in
         for blue in blues:
             curr_dist = 0
             for dir in all_dir:
-                new_pos = add_direction(red, apply_scalar_dir(dir, curr_power))
-                # new_pos = add_direction(red, dir)
-                adj_blues, curr_blue = adjacent_blues(board, red, dir)
-                # OPTION: WEIGHT THE CURR_BLUES LEFT
-                # THING IS: I don't know what the weighted value should be
-                curr_dist = calc_distance(new_pos, blue) - (2*adj_blues)
-                # curr_dist = calc_distance(new_pos, blue)
+                curr_dist, curr_blue = get_heuristic(red, blue, dir, board)
                 if (curr_dist == min_dist and curr_blue > max_blue) or curr_dist < min_dist:
                     max_blue = curr_blue
                     min_dist = curr_dist
@@ -153,11 +160,10 @@ def adjacent_blues(board: dict[tuple, tuple], red: tuple, dir: tuple) -> tuple:
 
 # Compare minimum values that are the same
 def compare_min(board: dict[tuple, tuple], red_a: tuple, red_b: tuple) -> tuple:
-
-
     return
 
-"""# This function adds the direction from a given point
+"""
+# This function adds the direction from a given point
 def get_shortest_direction(board: dict[tuple, tuple], red_piece: tuple, blue_piece: tuple) -> tuple:
     min_dist = float("inf")
     return_dir = None
