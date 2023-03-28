@@ -357,6 +357,7 @@ def get_shortest_distance_1(board: dict[tuple, tuple]) -> tuple:
     # Return List/Tuple that stores [red_pos, blue_pos]
     return_list = ()
     min_dist = float("inf")
+    max_blue = 0
 
     blues = [item[0] for item in board.items() if item[1][0] == BLUE]
     reds = [item[0] for item in board.items() if item[1][0] == RED]
@@ -372,29 +373,33 @@ def get_shortest_distance_1(board: dict[tuple, tuple]) -> tuple:
             for dir in all_dir:
                 new_pos = add_direction(red, apply_scalar_dir(dir, curr_power))
                 # new_pos = add_direction(red, dir)
-                adj_blues = adjacent_blues(board, red, dir)
+                adj_blues, curr_blue = adjacent_blues(board, red, dir)
                 # OPTION: WEIGHT THE CURR_BLUES LEFT
                 # THING IS: I don't know what the weighted value should be
                 curr_dist = calc_distance(new_pos, blue) - (2*adj_blues)
-                # curr_dist = calc_distance(new_pos, blue) 
-                if curr_dist < min_dist:
+                # curr_dist = calc_distance(new_pos, blue)
+                if (curr_dist == min_dist and curr_blue > max_blue) or curr_dist < min_dist:
+                    max_blue = curr_blue
                     min_dist = curr_dist
                     return_list = (red[0], red[1], dir[0], dir[1])
         
     return return_list
 
 # Final scoring function to count adjacent blues
-def adjacent_blues(board: dict[tuple, tuple], red: tuple, dir: tuple) -> int:
+def adjacent_blues(board: dict[tuple, tuple], red: tuple, dir: tuple) -> tuple:
     curr_pow = board[red][1]
     blue_count = 0
     new_pos = red
+    max_blue = 0
     for i in range(curr_pow):
         new_pos = add_direction(new_pos, dir)
         if new_pos in board and board[new_pos][0] == BLUE:
             # blue_count += board[new_pos][1]
             blue_count += 1
+            if board[new_pos][1] < 6 and board[new_pos][1] > max_blue:
+                max_blue = board[new_pos][1]
     # print(f'RED: {red}, POWER: {board[red][1]}, DIR: {dir} -> {blue_count}')
-    return blue_count
+    return blue_count, max_blue
 
 """# This function adds the direction from a given point
 def get_shortest_direction(board: dict[tuple, tuple], red_piece: tuple, blue_piece: tuple) -> tuple:
