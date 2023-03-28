@@ -2,8 +2,10 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search
-
+from .program import search
+# from .dist_calculator import check_loop, a_star_euc
+from .utils import render_board
+import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.
@@ -24,11 +26,10 @@ def parse_input(input: str) -> dict[tuple, tuple]:
     return {
         (int(r), int(q)): (p.strip(), int(k))
         for r, q, p, k in [
-            line.split(',') for line in input.splitlines()
+            line.split(',') for line in input.splitlines() 
             if len(line.strip()) > 0
         ]
     }
-
 
 def print_sequence(sequence: list[tuple]):
     """
@@ -38,7 +39,6 @@ def print_sequence(sequence: list[tuple]):
     for r, q, dr, dq in sequence:
         print(f"SPREAD {r} {q} {dr} {dq}")
 
-
 def main():
     """
     Main entry point for program.
@@ -47,6 +47,58 @@ def main():
     sequence: list[tuple] = search(input)
     print_sequence(sequence)
 
+def main3():
+    x_dir = [0, -1, -1, 0, 1, 1]
+    y_dir = [1, 1, 0, -1, -1, 0]
+    all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
+    board = {
+        (5, 6): ("r", 1)
+    }
+    # for dir in all_dir:
+    dir = all_dir[4]
+    print(check_loop(board, (5, 6), dir))
+    return
+
+def a_star_test():
+    board = {
+        (5, 6): ("r", 2),
+        (1, 0): ("b", 2),
+        (1, 1): ("b", 1),
+        (3, 2): ("b", 1),
+        (1, 3): ("b", 3)
+    }
+
+    print(render_board(board))
+    sequence = search(board)
+    print(sequence)
+    return
+
+
+def main4():
+    st = time.time()
+    board = {
+        # (2,2): ("r", 3),
+        # (2,1): ("b", 1),
+        # (2,0): ("b", 1),
+        # (3,6): ("r", 1),
+        (4,2): ("r", 1),
+        (4,5): ("r", 1),
+        (5,4): ("b", 3),
+        (5,3): ("b", 1),
+        (5,2): ("b", 1),
+        (5,1): ("b", 6)
+        
+    }
+
+    print(render_board(board))
+    sequence = search(board)
+    print(sequence)
+    et = time.time()
+    print(f'TOTAL TIME TAKEN: {et-st}')
+    return
 
 if __name__ == "__main__":
-    main()
+    # main()
+    # main3()
+    # a_star_test()
+    main4()

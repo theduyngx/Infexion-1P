@@ -1,6 +1,11 @@
 import time
-from utils import render_board
-from program import spread, check_victory, RAJA_search, RAJA_dfs_limited
+import os
+# from . import program
+from program import check_victory, spread, RAJA_dfs_limited
+# from . import utils
+from dist_calculator import check_loop
+
+print(f'CUURR PATH: {os.getcwd()}')
 
 INF = 9999
 
@@ -17,7 +22,7 @@ def main():
     }
     print("\nINIT: ")
     print("Victory status: " + str(check_victory(board)))
-    print(render_board(board))
+    # print(render_board(board))
 
     directions = [(0, -1), (0, -1), (0, -1), (-1, 0), (0, 1), (1, 0)]
     positions  = [(2,  0), (2,  6), (2,  5), (2,  0), (1, 0), (2, 2)]
@@ -27,12 +32,12 @@ def main():
         _ = spread(curr_pos, curr_dir, board)
         print("MOVE " + str(i+1) + ": ")
         print("Victory status: " + str(check_victory(board)))
-        print(render_board(board))
+        # print(render_board(board))
 
     ret = spread((0, 6), (0, 1), board)
     print("\nPiece NOT existing hence ret for SPREAD is " + str(ret))
     print("Piece existing hence ret for SPREAD is " + str(ret))
-    print(render_board(board))
+    # print(render_board(board))
 
     # ------------------- testing ------------------- #
     d = {'a': (1, 2), 'b': (3, 4), 'c': (5, 6)}
@@ -61,11 +66,11 @@ def main2():
     }
     """
 
-    movesList = []
-    valid = [([], INF, True)]
+    # movesList = []
+    # valid = [([], INF, True)]
     # tracker = (INF, True)
 
-    print(RAJA_search(board))
+    print(search(board))
 
     # print(RAJA_dfs_limited(board, 1, movesList, valid=valid))
     # print(valid)
@@ -73,6 +78,17 @@ def main2():
     print(f'Time Taken: {et-st}')
     return
 
+def main3():
+    x_dir = [0, -1, -1, 0, 1, 1]
+    y_dir = [1, 1, 0, -1, -1, 0]
+    all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
+    board = {
+        (5, 6): ("r", 2)
+    }
+    print(check_loop(board, (5, 6), (0, -1)))
+    return
+
 if __name__ == '__main__':
     # main()
-    main2()
+    # main2()
+    main3()
