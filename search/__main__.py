@@ -3,8 +3,10 @@
 
 from sys import stdin
 from .program import search
+from .heuristic import calc_distance
 # from .dist_calculator import check_loop, a_star_euc
 from .utils import render_board
+from .test_boards import all_boards
 import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -94,13 +96,22 @@ def main4():
     print(sequence)
     return
 
+def distance_test_func():
+    actual = 1
+    board = all_boards['distance_test_1']
+    print(f'Underestimated Distance: {calc_distance(list(board.keys())[0], list(board.keys())[1])}')
+    print(f'Actual Distance: {actual}')
+
+    return
+
 if __name__ == "__main__":
     st = time.time()
 
     # main()
     # main3()
-    # a_star_test()
-    main4()
+    a_star_test()
+    # main4()
+    # distance_test_func()
     
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
