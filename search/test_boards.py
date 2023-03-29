@@ -32,5 +32,11 @@ all_boards = {
         (5,3): ("b", 4),
         (5,2): ("b", 1),
         (5,1): ("b", 6)
+    },
+
+    # Use this to test distance heuristic
+    "distance_test": {
+        (4,4): ("r", 1),
+        (4,5): ("r", 1)
     }
 }
