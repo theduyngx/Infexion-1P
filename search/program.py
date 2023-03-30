@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from .utils import render_board
-from .heuristic import get_shortest_distance_1
+from .heuristic import get_shortest_not_greedy, get_shortest_priority, get_shortest_distance_1
 import math
 # from .dist_calculator import get_shortest_distance_1
 
@@ -22,6 +22,22 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
         # First find the nearest red blue pair
         # curr_move = get_shortest_distance_2(board=board)
         curr_move = get_shortest_distance_1(board=input)
+        # curr_move = get_shortest_not_greedy(board=input) 
+
+        # nearest_dir = get_shortest_direction(board, nearest_red, nearest_blue)
+        sequence.append(curr_move)
+        _ = spread((curr_move[0], curr_move[1]), (curr_move[2], curr_move[3]), input)
+        print(render_board(input))
+    return sequence
+
+def search_priority(input: dict[tuple, tuple]) -> list[tuple]:
+    sequence = []
+    while not check_victory(input):
+        # First find the nearest red blue pair
+        # curr_move = get_shortest_distance_2(board=board)
+        # curr_move = get_shortest_priority(board=input)
+        curr_move = get_shortest_not_greedy(board=input)
+
         # nearest_dir = get_shortest_direction(board, nearest_red, nearest_blue)
         sequence.append(curr_move)
         _ = spread((curr_move[0], curr_move[1]), (curr_move[2], curr_move[3]), input)
