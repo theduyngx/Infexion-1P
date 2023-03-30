@@ -7,6 +7,7 @@ from .heuristic import calc_distance, make_blue_priority
 # from .dist_calculator import check_loop, a_star_euc
 from .utils import render_board
 from .test_boards import all_boards
+from .a_star import A_star
 import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -107,6 +108,13 @@ def heuristic_priority_fail():
     print(search_priority(board))
     return
 
+def a_star_test_2():
+    board = all_boards['test_case']
+
+    print(render_board(board))
+    print(A_star(board))
+    return
+
 if __name__ == "__main__":
     st = time.time()
 
@@ -116,8 +124,9 @@ if __name__ == "__main__":
     # main4()
     # distance_test_func()
     # priority_test()
-    heuristic_priority_test()
+    # heuristic_priority_test()
     # heuristic_priority_fail()
+    a_star_test_2()
     
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
