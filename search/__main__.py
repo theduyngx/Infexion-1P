@@ -2,8 +2,8 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from .program import search
-from .heuristic import calc_distance
+from .program import search, search_priority
+from .heuristic import calc_distance, make_blue_priority
 # from .dist_calculator import check_loop, a_star_euc
 from .utils import render_board
 from .test_boards import all_boards
@@ -49,6 +49,8 @@ def main():
     sequence: list[tuple] = search(input)
     print_sequence(sequence)
 
+# --------------------------------------------------------------- TEST FUNCTIONS ---------------------------------------------------------------
+
 def main3():
     x_dir = [0, -1, -1, 0, 1, 1]
     y_dir = [1, 1, 0, -1, -1, 0]
@@ -62,13 +64,7 @@ def main3():
     return
 
 def a_star_test():
-    board = {
-        (5, 6): ("r", 2),
-        (1, 0): ("b", 2),
-        (1, 1): ("b", 1),
-        (3, 2): ("b", 1),
-        (1, 3): ("b", 3)
-    }
+    board = all_boards['test_case']
 
     print(render_board(board))
     sequence = search(board)
@@ -77,19 +73,7 @@ def a_star_test():
 
 
 def main4():
-    board = {
-        # (2,2): ("r", 3),
-        # (2,1): ("b", 1),
-        # (2,0): ("b", 1),
-        # (3,6): ("r", 1),
-        (4,4): ("r", 1),
-        (4,5): ("r", 1),
-        (5,4): ("b", 3),
-        (5,3): ("b", 4),
-        (5,2): ("b", 1),
-        (5,1): ("b", 6)
-        
-    }
+    board = all_boards["suboptimal_kill"]
 
     print(render_board(board))
     sequence = search(board)
@@ -101,7 +85,26 @@ def distance_test_func():
     board = all_boards['distance_test_1']
     print(f'Underestimated Distance: {calc_distance(list(board.keys())[0], list(board.keys())[1])}')
     print(f'Actual Distance: {actual}')
+    return
 
+def priority_test():
+    board = all_boards['suboptimal_kill']
+    print(render_board(board))
+    print(make_blue_priority(board))
+    return
+
+def heuristic_priority_test():
+    # board = all_boards['test_case']
+     #board = all_boards['test_case']
+    board = all_boards['suboptimal_kill']
+    print(render_board(board))
+    print(search_priority(board))
+    return
+
+def heuristic_priority_fail():
+    board = all_boards["priority_fail"]
+    print(render_board(board))
+    print(search_priority(board))
     return
 
 if __name__ == "__main__":
@@ -109,9 +112,12 @@ if __name__ == "__main__":
 
     # main()
     # main3()
-    a_star_test()
+    # a_star_test()
     # main4()
     # distance_test_func()
+    # priority_test()
+    heuristic_priority_test()
+    # heuristic_priority_fail()
     
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
