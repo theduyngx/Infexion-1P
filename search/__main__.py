@@ -2,8 +2,11 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search
-
+from program import search, spread
+from utils import render_board
+from test_boards import all_boards
+from a_star import A_star
+import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.
@@ -17,6 +20,7 @@ from program import search
 # the final action sequence and any other output that may be printed to stdout.
 # Regardless, you must not print anything to stdout in your *final* submission.
 
+
 def parse_input(input: str) -> dict[tuple, tuple]:
     """
     Parse input CSV into a dictionary of board cell states.
@@ -24,7 +28,7 @@ def parse_input(input: str) -> dict[tuple, tuple]:
     return {
         (int(r), int(q)): (p.strip(), int(k))
         for r, q, p, k in [
-            line.split(',') for line in input.splitlines()
+            line.split(',') for line in input.splitlines() 
             if len(line.strip()) > 0
         ]
     }
@@ -48,5 +52,23 @@ def main():
     print_sequence(sequence)
 
 
+def test(name: str):
+    board = all_boards[name]
+    print(render_board(board))
+    print_sequence_board(board, A_star(board))
+    return
+
+
+def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
+    for x, y, dx, dy in sequence:
+        spread((x, y), (dx, dy), board)
+        print(render_board(board))
+
+
 if __name__ == "__main__":
-    main()
+    st = time.time()
+    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'distance_test_1', 'test_case_2', 'priority_fail']
+    # test(names[3])
+    print(render_board(all_boards[names[3]]))
+    et = time.time()
+    print(f'TOTAL TIME TAKEN: {et-st}')
