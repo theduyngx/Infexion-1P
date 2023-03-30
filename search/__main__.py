@@ -3,6 +3,7 @@
 
 from sys import stdin
 from program import search, spread
+from search.state import State
 from utils import render_board
 from test_boards import all_boards
 from a_star import A_star
@@ -67,8 +68,13 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
 
 if __name__ == "__main__":
     st = time.time()
-    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'distance_test_1', 'test_case_2', 'priority_fail']
+    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'test_case_2', 'priority_fail']
     # test(names[3])
-    print(render_board(all_boards[names[3]]))
+    s1 = State(all_boards['complex_1'], [], 500)
+    s2 = State(all_boards['complex_2'], [1, 2, 3, 4], 200)
+    print(s1.board)
+    print(s2.board)
+    print(s1.__hash__())
+    print(s2.__hash__())
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')

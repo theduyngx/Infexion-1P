@@ -23,11 +23,6 @@ class State:
         new_state = State(self.board.copy(), self.moves.copy(), self.f_cost)
         return new_state
 
-    # to hashable object
-    def to_hash(self):
-        hashed = sorted(self.board.items())
-        return frozenset(hashed)
-
     # hashable object
     def __hash__(self):
         return hash(frozenset(self.board.items()))

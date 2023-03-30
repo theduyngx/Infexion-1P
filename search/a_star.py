@@ -1,6 +1,5 @@
 # IMPORTS
 import queue
-# from heuristic import get_heuristic_priority
 from program import check_victory, spread, INF
 from state import *
 
@@ -18,7 +17,7 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     discovered = {}
 
     curr_state = State(board, [], 0)
-    hash_curr  = curr_state.to_hash()
+    hash_curr  = curr_state.__hash__()
     min_found.put(curr_state)		    # init state has now been discovered
     discovered[hash_curr] = 1
     g_cost[hash_curr]     = 0
@@ -28,7 +27,7 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
 
     while not min_found.empty():
         curr_state = min_found.get()
-        hash_curr  = curr_state.to_hash()
+        hash_curr  = curr_state.__hash__()
         del discovered[hash_curr]
         if check_victory(curr_state.board):
             return curr_state.moves
@@ -42,7 +41,7 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
             _ = spread(position=(x, y), direction=(dir_x, dir_y), board=new_state.board)
-            hash_new = new_state.to_hash()
+            hash_new = new_state.__hash__()
             # true cost from init to new_state via curr_state
             g_cost_accum = g_cost[hash_curr] + 1
 
@@ -60,6 +59,18 @@ def h(state: State) -> int:
     """
     Heuristic function.
     """
+
+    # algorithm
+    # search for the single direction with the most blue pieces, +1 move
+    # then ignore them and find the next direction with most blue pieces without the ones just checked earlier
+    # do this until we have accounted for every blue piece
+    # for each of these directions, we +1 number of moves
+
+    # after this (could be initially expensive but on the long run will be cheaper), we check if any of our red
+    # pieces are on any of the previous direction; if not then +1 again
+
+    # --> h = number of directions (from dir with most blue to least) + (red on any direction == TRUE)
+
     return not check_victory(state.board)
 
 
