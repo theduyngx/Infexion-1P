@@ -39,3 +39,8 @@ function A_star(state, root):
     return NULL
 
 
+
+A few things to keep track of:
+    -  If x and y of opposite direction, then they're on the same vertical axis
+    -  If 
+

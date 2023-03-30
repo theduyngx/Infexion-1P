@@ -1,19 +1,7 @@
 # Python Equivalent
-from math import sqrt
 from board import *
 
 INF = 9999
-
-
-def dist(c1: Cell, c2: Cell) -> float:
-    """
-    Euclidean distance between 2 cells on the board.
-
-    @param c1: cell 1
-    @param c2: cell 2
-    @return  : euclidean distance between the cells
-    """
-    return sqrt((c1.x - c2.x) ** 2 + (c1.y - c2.y) ** 2)
 
 
 def closest_brute_force(cells: [Cell]) -> (Cell, Cell, float):
@@ -43,11 +31,11 @@ def closest_strip(strip: [Cell], sd: float) -> (Cell, Cell, float):
     Find distance between the closest cells of a strip of a given width. The cells in
     strip are sorted by y-coordinate.
 
-    @param strip: the given strip (a stripped down area of only viable cells).
-    @param sd   : the given width of the strip
-    @return     : cell of the first piece,
-                  cell of the second piece,
-                  the distance from said cells (which would be the closest)
+    @param strip : the given strip (a stripped down area of only viable cells).
+    @param sd    : the given width of the strip
+    @return      : cell of the first piece,
+                   cell of the second piece,
+                   the distance from said cells (which would be the closest)
     """
     global ret
     min_dist = sd

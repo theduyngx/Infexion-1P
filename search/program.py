@@ -16,8 +16,8 @@ all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
 def get_all_roots(state: dict[tuple, tuple]) -> list[tuple]:
     """
     Get all roots that player can start with, given only SPREAD action is permitted.
-    @param state: The provided state of the board.
-    @return     : a list of (x, y) positions of all possible start move (root).
+    @param state : The provided state of the board.
+    @return      : a list of (x, y) positions of all possible start move (root).
     """
     all_roots = []
     total_score = 0
@@ -35,19 +35,15 @@ def dfs_limited(state: dict[tuple, tuple], root: tuple, depth: int) -> ([tuple],
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
-    @param state: The provided state of the board.
-    @param root : Start position.
-    @param depth: Depth threshold for DFS.
-    @return     : a list of moves to reach to goal,
-                  a score that counts the number of steps to reach goal,
-                  a boolean value indicating whether there may be remaining child nodes yet traversed.
+    @param state : The provided state of the board.
+    @param root  : Start position.
+    @param depth : Depth threshold for DFS.
+    @return      : a list of moves to reach to goal,
+                   a score that counts the number of steps to reach goal,
+                   a boolean value indicating whether there may be remaining child nodes yet traversed.
     """
 
     # HERE: get all possible move from a given root
-
-    # x_coords = [0, -1, -1, 0, 1, 1]
-    # y_coords = [1, 1, 0, -1, -1, 0]
-
     return [], INF, True
 
 
@@ -55,10 +51,10 @@ def ids_score(state: dict[tuple, tuple], root: tuple) -> ([tuple], int):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
-    @param state: The provided state of the board.
-    @param root : Start position.
-    @return     : list of optimal moves to reach to goal (given specified root),
-                  the additive score (number of said moves)
+    @param state : The provided state of the board.
+    @param root  : Start position.
+    @return      : list of optimal moves to reach to goal (given specified root),
+                   the additive score (number of said moves)
     """
     depth = 0
     while True:
@@ -76,8 +72,8 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
     the keys are tuples of (r, q) coordinates, and the values are tuples of (p, k) cell states. The
     output should be a list of  actions, where each action is a tuple of (r, q, dr, dq) coordinates.
 
-    @param state: The provided state of the board.
-    @return     : the list of positions representing optimal moves
+    @param state : The provided state of the board.
+    @return      : the list of positions representing optimal moves
     """
 
     # render the board
@@ -105,10 +101,10 @@ def search(state: dict[tuple, tuple]) -> list[tuple]:
 def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool:
     """
     SPREAD movement for a specified piece.
-    @param position : The specified position.
-    @param direction: The direction in tuple indicating which hexagon neighbor is to.
-    @param state    : The provided state of the board.
-    @return         : boolean indicating whether SPREAD was successful or not
+    @param position  : The specified position.
+    @param direction : The direction in tuple indicating which hexagon neighbor is to.
+    @param state     : The provided state of the board.
+    @return          : boolean indicating whether SPREAD was successful or not
     """
 
     # invalid if position not in dictionary or has an enemy, or if direction is invalid
@@ -132,10 +128,10 @@ def spread(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> bool
 def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> tuple:
     """
     Returns the new position for iteration. Private function only called by SPREAD.
-    @param position : The specified position.
-    @param direction: The specified direction.
-    @param state    : The provided state of the board.
-    @return         : the output new position.
+    @param position  : The specified position.
+    @param direction : The specified direction.
+    @param state     : The provided state of the board.
+    @return          : the output new position.
     """
 
     # get new position
@@ -167,7 +163,7 @@ def make_move(position: tuple, direction: tuple, state: dict[tuple, tuple]) -> t
 def check_victory(state: dict[tuple, tuple]) -> bool:
     """
     Goal test - whether player has spread to all blue pieces.
-    @param state: The provided state of the board.
-    @return     : whether the state pass goal test.
+    @param state : The provided state of the board.
+    @return      : whether the state pass goal test.
     """
     return ENEMY not in map(lambda tup: tup[0], state.values())
