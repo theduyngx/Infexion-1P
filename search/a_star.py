@@ -56,101 +56,40 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     return []
 
 
-def h(state: State) -> int:
+# --------------------------- HEURISTIC -------------------------------- #
+
+
+def piece_value_increment(cell: tuple) -> tuple:
     """
-    The heuristic function.
+    For a given cell, which is a tuple in the form (position, piece), and piece is a tuple in the form
+    (piece type, stack value), increment its stack value.
 
-    @param state : given current state
-    @return      : the heuristic of said state (estimated number of moves to goal)
+    @param cell : the provided cell;
+    @return     : cell with incremented stack value of piece on it
     """
-    return h2(state)
-
-
-def h1(state: State) -> int:
-    total_heuristic = 0
-
-    # Get all the pieces
-    curr_board = state.board
-
-    # First store the pieces in the board from biggest to smallest
-    board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), curr_board.items()))
-    enemies = [pos for pos in curr_board.keys() if curr_board[pos][0] == ENEMY]
-    sorted_board = sorted(board_add, key=lambda x: x[1][1], reverse=True)
-    captured_pieces = {}
-
-    # Now iterate through the list
-    for piece, _ in sorted_board:
-        if len(captured_pieces.keys()) >= len(enemies):
-            break
-        add, captured_pieces = h1_adjacent_blues(curr_board, piece, captured_pieces)
-        total_heuristic += add
-
-    # Once that is all done, check if there are any blues
-    # not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
-    not_captured = len(captured_pieces.keys()) == len(curr_board.keys())
-    total_heuristic += not_captured
-
-    return total_heuristic
-
-
-# Helper function for incrementing power in the board
-def h_add(cell: tuple) -> tuple:
     tp, val = cell
     if tp == PLAYER:
-        if val < MAX_VAL:
-            val += 1
+        val += val < MAX_VAL
     else:
         val += 1
     return tp, val
 
 
-# Helper funct for h1
-# Edited this adjacent blues for the new heuristic h1
-def h1_adjacent_blues(board: dict[tuple, tuple], piece: tuple, captured: dict) -> tuple:
-    _, curr_power = board[piece]
-    new_captures = {}
-    max_blues = 0
-
-    # Check all directions for the max
-    for dir in all_dir:
-        curr_blues = 0
-        new_enemy = piece
-        curr_captures = {}
-        for _ in range(curr_power):
-            new_enemy = add_direction(new_enemy, dir)
-            if new_enemy in board:
-                if board[new_enemy][0] == ENEMY:
-                    curr_blues += new_enemy not in captured
-                    curr_captures[new_enemy] = True
-
-        # Need to adjust both our current max and the blues we will add to captured list
-        if curr_blues > max_blues:
-            max_blues = curr_blues
-            new_captures = curr_captures
-        del curr_captures
-
-    # Max Blues being greater than 0 means a capture did occur
-    if max_blues > 0:
-        for item in new_captures.keys():
-            captured[item] = True
-        del new_captures
-        return 1, captured
-
-    del new_captures
-    return 0, captured
-
-
-# --------------------------- h2 -------------------------------- #
-
-
 def enemy_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    """
+    Filter player pieces from the board, returning only a dictionary of enemies.
+
+    @param board : given board
+    @return      : the filtered board with only enemies
+    """
     return {position: piece for position, piece in board.items() if piece[0] == ENEMY}
 
 
-def h2(state: State) -> int:
+def h(state: State) -> int:
     """
-    Heuristic function 2 - checking enemies in line (single direction) with no regards to the stack
-    value of the pieces.
+    Heuristic function: For every piece (from most stacked to least), we check the most number of enemies
+    that can be captured by it, regardless of the piece type (player or enemy). Once that is established,
+    all said enemies are considered captured and will be ignored by subsequent checks.
 
     @param state : given current state
     @return      : the heuristic of said state (estimated number of moves to goal)
@@ -158,25 +97,19 @@ def h2(state: State) -> int:
 
     board = state.board
 
-    # board_add adds 1 to pieces: list of (position=(x, y), piece=(type, value))
-    board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), board.items()))
+    # board_add increments 1 to pieces' stack: list of format (position=(x, y), piece=(type, value))
+    board_add = list(map(lambda tup: (tup[0], piece_value_increment(tup[1])), board.items()))
     sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
     enemies = enemy_filter(board)
-
     num_moves = 0
     dict_dir = {}
 
+    # from most stacked piece to least
     for pos in sorted_board:
         if enemies == {}:
             break
         x, y = pos
         tp, val = sorted_board[pos]
-        if tp == PLAYER:
-            val += val < MAX_VAL
-        else:
-            val += 1
-            if val == SIZE:
-                continue
 
         # initialize the piece entry in direction dictionary
         for dir in all_dir:
@@ -186,14 +119,15 @@ def h2(state: State) -> int:
         for _pos in enemies:
             _x, _y = _pos
             _tp, _ = board[_pos]
-
-            # x-direction
             x_diff = x - _x
             y_diff = y - _y
             xd_abs = abs(x_diff)
             yd_abs = abs(y_diff)
+
+            # x-direction
             if _x == x and _y != y:
                 sign = int(y_diff / yd_abs)
+                # add to both directions of x-direction if stack is sufficiently large
                 if yd_abs <= val:
                     dict_dir[(x, y, (0, sign))].append(_pos)
                 if yd_abs <= SIZE - val:
@@ -202,6 +136,7 @@ def h2(state: State) -> int:
             # y-direction
             elif _x != x and _y == y:
                 sign = int(x_diff / xd_abs)
+                # add to both directions of y-direction if stack is sufficiently large
                 if xd_abs <= val:
                     dict_dir[(x, y, (sign, 0))].append(_pos)
                 if xd_abs <= SIZE - val:
@@ -217,12 +152,13 @@ def h2(state: State) -> int:
                     x_sign = -1
                     larger = xd_abs
                 y_sign = -x_sign
+                # add to both directions of vertical direction if stack is sufficiently large
                 if diff == 0 or diff == SIZE:
                     dict_dir[(x, y, (x_sign, y_sign))].append(_pos)
                     if larger <= val:
                         dict_dir[(x, y, (-x_sign, -y_sign))].append(_pos)
 
-        # list out to reduce overhead
+        # check the direction with most captures
         max_captured = 0
         captured = []
         for dir in all_dir:
@@ -231,16 +167,23 @@ def h2(state: State) -> int:
                 max_captured = curr_len
                 captured = dict_dir[(x, y, dir)]
 
+        # if no capture
         if not captured:
-            if pos in enemies:
-                num_moves += 1
             continue
 
+        # remove captured enemies from list of enemies left
         for position in captured:
             del enemies[position]
+        del captured
         num_moves += 1
 
+    # # if enemies dict not empty -- DON"T UNCOMMENT THIS, THIS THING MAKES IT ~0.3 secs SLOWER FOR SOME REASON
+    # if enemies:
+    #     num_moves += 1
+
+    # cleanup
     del dict_dir
+    del enemies
     del sorted_board
     del board_add
     return num_moves
