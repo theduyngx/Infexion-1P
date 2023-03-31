@@ -79,7 +79,8 @@ def h2(state: State) -> int:
 
     # --> h = number of directions (from dir with most blue to least) + (red on any direction == TRUE)
 
-    board = state.board
+    board      = state.board
+    num_moves  = 0
     spreaded   = {}
     dict_dir   = {}
     for pos in board:
@@ -115,33 +116,40 @@ def h2(state: State) -> int:
                 if diff == 0 or diff == SIZE:
                     dict_dir[(x, y, (1, -1))].append(_pos)
 
-        # delete empty entries
+        # delete empty entries - empty entries imply that they do not share direction with any other pieces
+        empty = 0
         if not dict_dir[(x, y, (1, 0))]:
             del dict_dir[(x, y, (1, 0))]
+            empty += 1
         if not dict_dir[(x, y, (0, 1))]:
             del dict_dir[(x, y, (0, 1))]
+            empty += 1
         if not dict_dir[(x, y, (1, -1))]:
             del dict_dir[(x, y, (1, -1))]
+            empty += 1
+        num_moves += (empty == 3)
 
     # then sort the direction dictionary by direction with the highest number of blue pieces
     dir_sort = list(map(lambda tup: (-len(tup[1]), tup[1]), dict_dir.items()))
 
-    # due to it being min-heap (no max heap in python3), we push in negative lengths
+    # due to it being min-heap (no max heap in python3), we push negative lengths
     heapq.heapify(dir_sort)
-    num_moves = 0
     while dir_sort:
-        entry = heapq.heappop(dir_sort)
+        neg_len, pieces = heapq.heappop(dir_sort)
         update_list = []
-        neg_len, pieces = entry
         for piece in pieces:
             if piece in spreaded:
                 continue
             update_list.append(piece)
-        if len(update_list) == -neg_len:
+
+        # if every entry within the list is brand new
+        if -len(update_list) == neg_len:
+            num_moves += 1
             # do it again ig
             for piece in pieces:
                 spreaded[piece] = 1
-                num_moves += 1
+
+        # if not all has been visited (partially visited)
         elif update_list:
             update_entry = (-len(update_list), update_list)
             heapq.heappush(dir_sort, update_entry)
