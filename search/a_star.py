@@ -15,34 +15,26 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     @param board : the provided board (initial state)
     @return      : the sequence of optimal moves
     """
-    min_found = queue.PriorityQueue()  # discovered nodes
-    g_cost = {}  # real cumulative cost from root
-    f_cost = {}  # best guess f = g + h
+    min_found = queue.PriorityQueue()   # discovered nodes
+    g_cost = {}                         # real cumulative cost from root
+    f_cost = {}                         # best guess f = g + h
     discovered = {}
 
-    curr_state = State(board, [], 0)
-    hash_curr = curr_state.__hash__()
-    min_found.put(curr_state)  # init state has now been discovered
-    discovered[hash_curr] = 1
-    g_cost[hash_curr] = 0
-    f_cost[hash_curr] = 0
-    # min_moves = []
-    # num_moves = 9999
+    curr_state = State(board, [], 0)    # current state initialized as init state
+    hash_curr = curr_state.__hash__()   # hashed state for dictionary accessing
+    min_found.put(curr_state)           # init state has now been discovered
+    discovered[hash_curr] = 1           # curr state discovered
+    g_cost[hash_curr] = 0               # real cost from init state
+    f_cost[hash_curr] = 0               # f cost from init to goal state
 
     while not min_found.empty():
         curr_state = min_found.get()
-        # if curr_state.f_cost > num_moves:
-        #     break
-
         hash_curr = curr_state.__hash__()
         del discovered[hash_curr]
+
+        # reached goal state
         if check_victory(curr_state.board):
             return curr_state.moves
-
-            # # return the optimal moves to reach the goal state
-            # if len(curr_state.moves) < num_moves:
-            #     min_moves = curr_state.moves
-            #     num_moves = len(curr_state.moves)
 
         for neighbor in get_neighbors(curr_state):
             x, y, dir_x, dir_y = neighbor
@@ -205,11 +197,6 @@ def h(state: State) -> int:
             del enemies[position]
         del captured
         num_moves += 1
-
-    # # if enemies dict not empty -- DON"T UNCOMMENT THIS, THIS THING MAKES IT ~0.3 secs SLOWER FOR SOME REASON
-    # # it looks like it is better heuristic but the damn if statement makes it way too slow
-    # if enemies:
-    #     num_moves += 1
 
     # cleanup
     del dict_dir

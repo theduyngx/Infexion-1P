@@ -69,23 +69,5 @@ if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'test_case_2', 'priority_fail']
     test(names[4])
-    # d = {0: 1, 1: 1, 2: 1, 3: 0}
-    # print(any(d.values()))
-
-    # s1 = State(all_boards['complex_1'], [], 500)
-    # s2 = State(all_boards['complex_2'], [1, 2, 3, 4], 200)
-    # print(s1.board)
-    # print(s2.board)
-    # print(s1.__hash__())
-    # print(s2.__hash__())
-
-    # d = {2: [1, 2, 3, 4, 5], 1: [2, 5, 6, 7, 3, 2, 1], 3: [1, 5]}
-    # s = list(map(lambda tup: tup[1], sorted(d.items(), key=lambda x: len(x[1]), reverse=True)))
-    # s1 = list(map(lambda tup: (-len(tup[1]), tup[1]), d.items()))
-    # print(s)
-    # print(s1)
-    # heapq.heapify(s1)
-    # print(s1)
-
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
