@@ -18,6 +18,9 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
     f_cost = {}  # best guess f = g + h
     discovered = {}
 
+    # TEST
+    num = 0
+
     curr_state = State(board, [], 0)
     hash_curr = curr_state.__hash__()
     min_found.put(curr_state)  # init state has now been discovered
@@ -32,6 +35,7 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
         hash_curr = curr_state.__hash__()
         del discovered[hash_curr]
         if check_victory(curr_state.board):
+            print("Number of expansions =", num)
             return curr_state.moves
             # return the optimal moves to reach the goal state
             # if len(curr_state.moves) < num_moves:
@@ -39,6 +43,7 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
             #     num_moves = len(curr_state.moves)
 
         for neighbor in get_neighbors(curr_state):
+            num+=1
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
@@ -54,6 +59,8 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
                     min_found.put(new_state)
+
+    print(num)
     return []
 
 
@@ -64,7 +71,7 @@ def h(state: State) -> int:
     @param state : given current state
     @return      : the heuristic of said state (estimated number of moves to goal)
     """
-    return h2(state)
+    return h1(state)
 
 
 def h1(state: State) -> int:
@@ -75,62 +82,78 @@ def h1(state: State) -> int:
 
     # First store the pieces in the board from biggest
     # to smallest
-    sorted_board = sorted(list(curr_board.keys()), key=lambda x: curr_board[x][1], reverse=True)
+    board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), curr_board.items()))
+    enemies = [pos for pos in curr_board.keys() if curr_board[pos][0] == ENEMY]
+    sorted_board = sorted(board_add, key=lambda x: x[1][1], reverse=True)
     captured_pieces = {}
 
     # Now iterate through the list
-    for piece in sorted_board:
+
+    for piece, _ in sorted_board:
+        if len(captured_pieces.keys()) >= len(enemies):
+            break
         add, captured_pieces = h1_adjacent_blues(curr_board, piece, captured_pieces)
         total_heuristic += add
 
     # Once that is all done, check if there are any blues
-    not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
+    # not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
+    not_captured = len(captured_pieces.keys()) == len(curr_board.keys())
     total_heuristic += not_captured
 
     return total_heuristic
 
 
+# Helper function for incrementing power in the board
+def h_add(cell: tuple) -> tuple:
+    tp, val = cell
+    if (tp == PLAYER):
+        print("Fuck")
+        if val < MAX_VAL:
+            val += 1
+    else:
+        val += 1
+    return tp, val
+
+
 # Helper funct for h1
 # Edited this adjacent blues for the new heuristic h1
 def h1_adjacent_blues(board: dict[tuple, tuple], piece: tuple, captured: dict) -> tuple:
-    curr_power = board[piece][1]
-    new_captures = []
+    _, curr_power = board[piece]
+    new_captures = {}
     max_blues = 0
-
-    # Idea is to increment by 1, as if blue piece is stacked
-    if not (board[piece][0] == PLAYER and curr_power == 6):
-        curr_power += 1
 
     # Check all directions for the max
     for dir in all_dir:
         curr_blues = 0
         new_pos = piece
-        curr_captures = []
+        curr_captures = {}
         for _ in range(curr_power):
             new_pos = add_direction(new_pos, dir)
-            if new_pos in board and board[new_pos][0] == ENEMY and not (new_pos in captured):
-                curr_blues += 1
-                curr_captures.append(new_pos)
+            if new_pos in board:
+                if board[new_pos][0] == ENEMY:
+                    curr_blues += new_pos not in captured
+                    curr_captures[new_pos] = True
 
         # Need to adjust both our current max
         # and the blues we will add to captured list
         if curr_blues > max_blues:
             max_blues = curr_blues
             new_captures = curr_captures
+        del curr_captures
 
     # Don't know how else to do this but add
     # new_captures to captured list
     # BETTER WAY TO IMPLEMENT THIS
     # captured = captured + new_captures
 
-    # Max Blues being greater than 0 means
-    # a capture did occur
+    # Max Blues being greater than 0 means a capture did occur
     if max_blues > 0:
-        for item in new_captures:
+        for item in new_captures.keys():
             captured[item] = True
+        del new_captures
         return 1, captured
 
-    # captured[piece] = False
+    del new_captures
     return 0, captured
 
 

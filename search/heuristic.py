@@ -1,6 +1,6 @@
 # Necessary Imports
 import math
-from state import *
+from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
 
 # GLOBAL CONSTANTS
 INF     = 9999
