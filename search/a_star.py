@@ -1,6 +1,7 @@
 # IMPORTS
 import queue
-from program import check_victory, spread, INF
+import heapq
+from program import check_victory, spread
 from state import *
 
 
@@ -48,8 +49,8 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
             if hash_new not in g_cost or g_cost_accum < g_cost[hash_new]:
                 g_cost[hash_new] = g_cost_accum
                 f_cost[hash_new] = g_cost_accum + h(new_state)
-                new_state.f_cost  = f_cost[hash_new]
-                if new_state not in discovered:
+                new_state.f_cost = f_cost[hash_new]
+                if hash_new not in discovered:
                     discovered[hash_new] = 1
                     min_found.put(new_state)
     return []
@@ -58,6 +59,13 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
 def h(state: State) -> int:
     """
     Heuristic function.
+    """
+    return h2(state)
+
+
+def h2(state: State) -> int:
+    """
+    Heuristic function method 2.
     """
 
     # algorithm
@@ -71,7 +79,74 @@ def h(state: State) -> int:
 
     # --> h = number of directions (from dir with most blue to least) + (red on any direction == TRUE)
 
-    return not check_victory(state.board)
+    board = state.board
+    spreaded   = {}
+    dict_dir   = {}
+    for pos in board:
+        x, y = pos
+        tp, val = board[pos]
+        if tp == PLAYER:
+            continue
+
+        # initialize the piece entry in direction dictionary
+        dict_dir[(x, y, (1, 0))]  = []
+        dict_dir[(x, y, (0, 1))]  = []
+        dict_dir[(x, y, (1, -1))] = []
+
+        for _pos in board:
+            _x, _y = _pos
+            _tp, _val = board[_pos]
+            if _tp == PLAYER:
+                continue
+
+            # x-direction
+            if _x == x and _y != y:
+                dict_dir[(x, y, (1, 0))].append(_pos)
+
+            # y-direction
+            elif _x != x and _y != y:
+                dict_dir[(x, y, (0, 1))].append(_pos)
+
+            # vertical direction
+            else:
+                x_diff = x - _x
+                y_diff = y - _y
+                diff = abs(x_diff + y_diff)
+                if diff == 0 or diff == SIZE:
+                    dict_dir[(x, y, (1, -1))].append(_pos)
+
+        # delete empty entries
+        if not dict_dir[(x, y, (1, 0))]:
+            del dict_dir[(x, y, (1, 0))]
+        if not dict_dir[(x, y, (0, 1))]:
+            del dict_dir[(x, y, (0, 1))]
+        if not dict_dir[(x, y, (1, -1))]:
+            del dict_dir[(x, y, (1, -1))]
+
+    # then sort the direction dictionary by direction with the highest number of blue pieces
+    dir_sort = list(map(lambda tup: (-len(tup[1]), tup[1]), dict_dir.items()))
+
+    # due to it being min-heap (no max heap in python3), we push in negative lengths
+    heapq.heapify(dir_sort)
+    num_moves = 0
+    while dir_sort:
+        entry = heapq.heappop(dir_sort)
+        update_list = []
+        neg_len, pieces = entry
+        for piece in pieces:
+            if piece in spreaded:
+                continue
+            update_list.append(piece)
+        if len(update_list) == -neg_len:
+            # do it again ig
+            for piece in pieces:
+                spreaded[piece] = 1
+                num_moves += 1
+        elif update_list:
+            update_entry = (-len(update_list), update_list)
+            heapq.heappush(dir_sort, update_entry)
+
+    return num_moves
 
 
 def get_neighbors(state: State) -> [tuple]:
