@@ -104,21 +104,30 @@ def h2(state: State) -> int:
                 player_pieces[pos] = 1
                 continue
 
-            # x-direction
-            if _x == x and _y != y:
-                dict_dir[(x, y, (0, 1))].append(_pos)
-
-            # y-direction
-            elif _x != x and _y == y:
-                dict_dir[(x, y, (1, 0))].append(_pos)
-
-            # vertical direction
-            elif _x != x and _y != y:
-                x_diff = x - _x
-                y_diff = y - _y
-                diff = abs(x_diff + y_diff)
+            # premature optimization
+            if x != _x and y != _y:
+                diff = abs(x - _x + y - _y)
                 if diff == 0 or diff == SIZE:
                     dict_dir[(x, y, (1, -1))].append(_pos)
+            elif x != _x or y != _y:
+                x_eq = x == _x
+                y_eq = not x_eq
+                dict_dir[(x, y, (x_eq, y_eq))].append(_pos)
+
+
+            # # x-direction
+            # if _x == x and _y != y:
+            #     dict_dir[(x, y, (0, 1))].append(_pos)
+            #
+            # # y-direction
+            # elif _x != x and _y == y:
+            #     dict_dir[(x, y, (1, 0))].append(_pos)
+            #
+            # # vertical direction
+            # elif _x != x and _y != y:
+            #     diff = abs(x - _x + y - _y)
+            #     if diff == 0 or diff == SIZE:
+            #         dict_dir[(x, y, (1, -1))].append(_pos)
 
         # delete empty enemy entries - implying that they do not share direction with any other pieces
         # empty enemy entries also imply that they require at least 1 additional move to be spread on
