@@ -3,6 +3,7 @@ import queue
 import heapq
 from program import check_victory, spread
 from state import *
+from dist_calculator import add_direction
 
 
 def A_star(board: dict[tuple, tuple]) -> [tuple]:
@@ -66,6 +67,73 @@ def h(state: State) -> int:
     return h2(state)
 
 
+def h1(state: State) -> int:
+    total_heuristic = 0
+
+    # Get all the pieces
+    curr_board = state.board
+
+    # First store the pieces in the board from biggest
+    # to smallest
+    sorted_board = sorted(list(curr_board.keys()), key=lambda x: curr_board[x][1], reverse=True)
+    captured_pieces = {}
+
+    # Now iterate through the list
+    for piece in sorted_board:
+        add, captured_pieces = h1_adjacent_blues(curr_board, piece, captured_pieces)
+        total_heuristic += add
+
+    # Once that is all done, check if there are any blues
+    not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
+    total_heuristic += not_captured
+
+    return total_heuristic
+
+
+# Helper funct for h1
+# Edited this adjacent blues for the new heuristic h1
+def h1_adjacent_blues(board: dict[tuple, tuple], piece: tuple, captured: dict) -> tuple:
+    curr_power = board[piece][1]
+    new_captures = []
+    max_blues = 0
+
+    # Idea is to increment by 1, as if blue piece is stacked
+    if not (board[piece][0] == PLAYER and curr_power == 6):
+        curr_power += 1
+
+    # Check all directions for the max
+    for dir in all_dir:
+        curr_blues = 0
+        new_pos = piece
+        curr_captures = []
+        for _ in range(curr_power):
+            new_pos = add_direction(new_pos, dir)
+            if new_pos in board and board[new_pos][0] == ENEMY and not (new_pos in captured):
+                curr_blues += 1
+                curr_captures.append(new_pos)
+
+        # Need to adjust both our current max
+        # and the blues we will add to captured list
+        if curr_blues > max_blues:
+            max_blues = curr_blues
+            new_captures = curr_captures
+
+    # Don't know how else to do this but add
+    # new_captures to captured list
+    # BETTER WAY TO IMPLEMENT THIS
+    # captured = captured + new_captures
+
+    # Max Blues being greater than 0 means
+    # a capture did occur
+    if max_blues > 0:
+        for item in new_captures:
+            captured[item] = True
+        return 1, captured
+
+    # captured[piece] = False
+    return 0, captured
+
+
 def h2(state: State) -> int:
     """
     Heuristic function 2 - checking enemies in line (single direction) with no regards to the stack
@@ -104,30 +172,19 @@ def h2(state: State) -> int:
                 player_pieces[pos] = 1
                 continue
 
-            # premature optimization
-            if x != _x and y != _y:
+            # x-direction
+            if _x == x and _y != y:
+                dict_dir[(x, y, (0, 1))].append(_pos)
+
+            # y-direction
+            elif _x != x and _y == y:
+                dict_dir[(x, y, (1, 0))].append(_pos)
+
+            # vertical direction
+            elif _x != x:
                 diff = abs(x - _x + y - _y)
                 if diff == 0 or diff == SIZE:
                     dict_dir[(x, y, (1, -1))].append(_pos)
-            elif x != _x or y != _y:
-                x_eq = x == _x
-                y_eq = not x_eq
-                dict_dir[(x, y, (x_eq, y_eq))].append(_pos)
-
-
-            # # x-direction
-            # if _x == x and _y != y:
-            #     dict_dir[(x, y, (0, 1))].append(_pos)
-            #
-            # # y-direction
-            # elif _x != x and _y == y:
-            #     dict_dir[(x, y, (1, 0))].append(_pos)
-            #
-            # # vertical direction
-            # elif _x != x and _y != y:
-            #     diff = abs(x - _x + y - _y)
-            #     if diff == 0 or diff == SIZE:
-            #         dict_dir[(x, y, (1, -1))].append(_pos)
 
         # delete empty enemy entries - implying that they do not share direction with any other pieces
         # empty enemy entries also imply that they require at least 1 additional move to be spread on
