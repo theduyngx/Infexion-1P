@@ -1,9 +1,26 @@
 # Necessary Imports
 import math
+
+from search.movement import spread
+from search.utils import render_board
 from state import *
 
-# GLOBAL CONSTANTS
-INF     = 9999
+
+def search_priority(board: dict[tuple, tuple]) -> list[tuple]:
+    """
+    Get the greedy priority for child node expansion (probably obsolete)
+
+    @param board : the given board
+    @return      : sequence of moves
+    """
+    sequence = []
+    while not check_victory(board):
+        # First find the nearest red blue pair
+        curr_move = get_shortest_priority(board)
+        sequence.append(curr_move)
+        _ = spread((curr_move[0], curr_move[1]), (curr_move[2], curr_move[3]), board)
+        print(render_board(board))
+    return sequence
 
 
 # Use this to identify the next possible move using euclidean spaces

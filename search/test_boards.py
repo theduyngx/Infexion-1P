@@ -10,10 +10,6 @@ all_boards = {
 
     # Test case where the kill was suboptimal to ending the game earlier
     "suboptimal_kill": {
-        # (2, 2): ("r", 3),
-        # (2, 1): ("b", 1),
-        # (2, 0): ("b", 1),
-        # (3, 6): ("r", 1),
         (4, 4): ("r", 1),
         (4, 5): ("r", 1),
         (5, 4): ("b", 3),

@@ -1,8 +1,11 @@
-# IMPORTS
+# Author  : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+# File    : a_star.py
+# Purpose : Informed search algorithm A* to find the optimal sequence of moves for a given input state
+#           of a board to reach its goal state.
+
 import queue
-from program import check_victory, spread
+from movement import *
 from state import *
-from dist_calculator import add_direction
 
 
 def A_star(board: dict[tuple, tuple]) -> [tuple]:
@@ -24,15 +27,19 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     g_cost[hash_curr] = 0
     f_cost[hash_curr] = 0
     # min_moves = []
-    # num_moves = INF
+    # num_moves = 9999
 
     while not min_found.empty():
         curr_state = min_found.get()
+        # if curr_state.f_cost > num_moves:
+        #     break
+
         hash_curr = curr_state.__hash__()
         del discovered[hash_curr]
         if check_victory(curr_state.board):
             return curr_state.moves
-            # return the optimal moves to reach the goal state
+
+            # # return the optimal moves to reach the goal state
             # if len(curr_state.moves) < num_moves:
             #     min_moves = curr_state.moves
             #     num_moves = len(curr_state.moves)
@@ -56,7 +63,26 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     return []
 
 
-# --------------------------- HEURISTIC -------------------------------- #
+def get_neighbors(state: State) -> [tuple]:
+    """
+    Get all neighboring state of a given, current state of the board. Neighbors are all derived states
+    resulted from player's single move.
+
+    @param state : given current state
+    @return      : list of all possible single move by player that returns a neighboring state
+    """
+    neighbors = []
+    board = state.board
+    for x, y in board.keys():
+        p_type, stack = board[(x, y)]
+        if p_type == ENEMY:
+            continue
+        for dir_x, dir_y in all_dir:
+            neighbors.append((x, y, dir_x, dir_y))
+    return neighbors
+
+
+# ------------------------------------- HEURISTIC ----------------------------------------- #
 
 
 def piece_value_increment(cell: tuple) -> tuple:
@@ -98,11 +124,11 @@ def h(state: State) -> int:
     board = state.board
 
     # board_add increments 1 to pieces' stack: list of format (position=(x, y), piece=(type, value))
-    board_add = list(map(lambda tup: (tup[0], piece_value_increment(tup[1])), board.items()))
+    board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1])), board.items()))
     sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
-    enemies = enemy_filter(board)
-    num_moves = 0
-    dict_dir = {}
+    enemies      = enemy_filter(board)
+    num_moves    = 0
+    dict_dir     = {}
 
     # from most stacked piece to least
     for pos in sorted_board:
@@ -127,6 +153,7 @@ def h(state: State) -> int:
             # x-direction
             if _x == x and _y != y:
                 sign = int(y_diff / yd_abs)
+
                 # add to both directions of x-direction if stack is sufficiently large
                 if yd_abs <= val:
                     dict_dir[(x, y, (0, sign))].append(_pos)
@@ -136,6 +163,7 @@ def h(state: State) -> int:
             # y-direction
             elif _x != x and _y == y:
                 sign = int(x_diff / xd_abs)
+
                 # add to both directions of y-direction if stack is sufficiently large
                 if xd_abs <= val:
                     dict_dir[(x, y, (sign, 0))].append(_pos)
@@ -152,6 +180,7 @@ def h(state: State) -> int:
                     x_sign = -1
                     larger = xd_abs
                 y_sign = -x_sign
+
                 # add to both directions of vertical direction if stack is sufficiently large
                 if diff == 0 or diff == SIZE:
                     dict_dir[(x, y, (x_sign, y_sign))].append(_pos)
@@ -178,6 +207,7 @@ def h(state: State) -> int:
         num_moves += 1
 
     # # if enemies dict not empty -- DON"T UNCOMMENT THIS, THIS THING MAKES IT ~0.3 secs SLOWER FOR SOME REASON
+    # # it looks like it is better heuristic but the damn if statement makes it way too slow
     # if enemies:
     #     num_moves += 1
 
@@ -187,22 +217,3 @@ def h(state: State) -> int:
     del sorted_board
     del board_add
     return num_moves
-
-
-def get_neighbors(state: State) -> [tuple]:
-    """
-    Get all neighboring state of a given, current state of the board. Neighbors are all derived states
-    resulted from player's single move.
-
-    @param state : given current state
-    @return      : list of all possible single move by player that returns a neighboring state
-    """
-    neighbors = []
-    board = state.board
-    for x, y in board.keys():
-        p_type, stack = board[(x, y)]
-        if p_type == ENEMY:
-            continue
-        for dir_x, dir_y in all_dir:
-            neighbors.append((x, y, dir_x, dir_y))
-    return neighbors

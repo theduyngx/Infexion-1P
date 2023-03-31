@@ -1,11 +1,8 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-import heapq
-
 from sys import stdin
 from program import search, spread
-from search.state import State
 from utils import render_board
 from test_boards import all_boards
 from a_star import A_star
