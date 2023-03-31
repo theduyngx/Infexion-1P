@@ -133,26 +133,14 @@ def h2(state: State) -> int:
     dir_sort = list(map(lambda tup: (-len(tup[1]), tup[1]), dict_dir.items()))
 
     # due to it being min-heap (no max heap in python3), we push negative lengths
+    found = False
     heapq.heapify(dir_sort)
     while dir_sort:
         neg_len, pieces = heapq.heappop(dir_sort)
-        update_list = []
         for piece in pieces:
-            if piece in spreaded:
-                continue
-            update_list.append(piece)
-
-        # if every entry within the list is brand new
-        if -len(update_list) == neg_len:
-            num_moves += 1
-            # do it again ig
-            for piece in pieces:
-                spreaded[piece] = 1
-
-        # if not all has been visited (partially visited)
-        elif update_list:
-            update_entry = (-len(update_list), update_list)
-            heapq.heappush(dir_sort, update_entry)
+            found = piece not in spreaded
+            spreaded[piece] = 1
+        num_moves += found
 
     return num_moves
 
