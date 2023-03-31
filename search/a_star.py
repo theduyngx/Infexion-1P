@@ -1,12 +1,12 @@
 # IMPORTS
 import queue
 import heapq
-from program import check_victory, spread
-from state import *
-from dist_calculator import add_direction
+from .program import check_victory, spread
+from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
+from .dist_calculator import add_direction
 
 
-def A_star(board: dict[tuple, tuple]) -> [tuple]:
+def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
 
@@ -222,7 +222,7 @@ def h2(state: State) -> int:
     return num_moves
 
 
-def get_neighbors(state: State) -> [tuple]:
+def get_neighbors(state: State) -> list: #[tuple]:
     """
     Get all neighboring state of a given, current state of the board. Neighbors are all derived states
     resulted from player's single move.

@@ -1,6 +1,7 @@
-from program import spread, check_victory
-from utils import render_board
-from state import *
+from .program import spread, check_victory
+from .utils import render_board
+# from state import *\
+from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
 import math
 
 INF     = 9999

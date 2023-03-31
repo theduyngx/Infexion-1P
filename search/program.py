@@ -1,9 +1,10 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part A: Single Player Infexion
 
-from utils import render_board
-from state import *
-from heuristic import get_shortest_priority, get_shortest_distance_1
+from .utils import render_board
+# from .state import *
+from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
+from .heuristic import get_shortest_priority, get_shortest_distance_1
 
 # constants
 INF = 9999

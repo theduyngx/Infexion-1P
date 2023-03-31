@@ -4,11 +4,11 @@
 import heapq
 
 from sys import stdin
-from program import search, spread
-from search.state import State
-from utils import render_board
-from test_boards import all_boards
-from a_star import A_star
+from .program import search, spread
+from .state import State
+from .utils import render_board
+from .test_boards import all_boards
+from .a_star import A_star
 import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
