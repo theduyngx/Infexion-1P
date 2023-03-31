@@ -1,6 +1,5 @@
 # IMPORTS
 import queue
-import heapq
 from program import check_victory, spread
 from state import *
 from dist_calculator import add_direction
@@ -73,65 +72,79 @@ def h1(state: State) -> int:
     # Get all the pieces
     curr_board = state.board
 
-    # First store the pieces in the board from biggest
-    # to smallest
-    sorted_board = sorted(list(curr_board.keys()), key=lambda x: curr_board[x][1], reverse=True)
+    # First store the pieces in the board from biggest to smallest
+    board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), curr_board.items()))
+    enemies = [pos for pos in curr_board.keys() if curr_board[pos][0] == ENEMY]
+    sorted_board = sorted(board_add, key=lambda x: x[1][1], reverse=True)
     captured_pieces = {}
 
     # Now iterate through the list
-    for piece in sorted_board:
+    for piece, _ in sorted_board:
+        if len(captured_pieces.keys()) >= len(enemies):
+            break
         add, captured_pieces = h1_adjacent_blues(curr_board, piece, captured_pieces)
         total_heuristic += add
 
     # Once that is all done, check if there are any blues
-    not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
+    # not_captured = len([key for key in captured_pieces.keys() if captured_pieces[key] == False])
+    not_captured = len(captured_pieces.keys()) == len(curr_board.keys())
     total_heuristic += not_captured
 
     return total_heuristic
 
 
+# Helper function for incrementing power in the board
+def h_add(cell: tuple) -> tuple:
+    tp, val = cell
+    if tp == PLAYER:
+        if val < MAX_VAL:
+            val += 1
+    else:
+        val += 1
+    return tp, val
+
+
 # Helper funct for h1
 # Edited this adjacent blues for the new heuristic h1
 def h1_adjacent_blues(board: dict[tuple, tuple], piece: tuple, captured: dict) -> tuple:
-    curr_power = board[piece][1]
-    new_captures = []
+    _, curr_power = board[piece]
+    new_captures = {}
     max_blues = 0
-
-    # Idea is to increment by 1, as if blue piece is stacked
-    if not (board[piece][0] == PLAYER and curr_power == 6):
-        curr_power += 1
 
     # Check all directions for the max
     for dir in all_dir:
         curr_blues = 0
-        new_pos = piece
-        curr_captures = []
+        new_enemy = piece
+        curr_captures = {}
         for _ in range(curr_power):
-            new_pos = add_direction(new_pos, dir)
-            if new_pos in board and board[new_pos][0] == ENEMY and not (new_pos in captured):
-                curr_blues += 1
-                curr_captures.append(new_pos)
+            new_enemy = add_direction(new_enemy, dir)
+            if new_enemy in board:
+                if board[new_enemy][0] == ENEMY:
+                    curr_blues += new_enemy not in captured
+                    curr_captures[new_enemy] = True
 
-        # Need to adjust both our current max
-        # and the blues we will add to captured list
+        # Need to adjust both our current max and the blues we will add to captured list
         if curr_blues > max_blues:
             max_blues = curr_blues
             new_captures = curr_captures
+        del curr_captures
 
-    # Don't know how else to do this but add
-    # new_captures to captured list
-    # BETTER WAY TO IMPLEMENT THIS
-    # captured = captured + new_captures
-
-    # Max Blues being greater than 0 means
-    # a capture did occur
+    # Max Blues being greater than 0 means a capture did occur
     if max_blues > 0:
-        for item in new_captures:
+        for item in new_captures.keys():
             captured[item] = True
+        del new_captures
         return 1, captured
 
-    # captured[piece] = False
+    del new_captures
     return 0, captured
+
+
+# --------------------------- h2 -------------------------------- #
+
+
+def enemy_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    return {position: piece for position, piece in board.items() if piece[0] == ENEMY}
 
 
 def h2(state: State) -> int:
@@ -144,81 +157,92 @@ def h2(state: State) -> int:
     """
 
     board = state.board
+
+    # board_add adds 1 to pieces: list of (position=(x, y), piece=(type, value))
+    board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), board.items()))
+    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
+    enemies = enemy_filter(board)
+
     num_moves = 0
-    spreaded = {}
     dict_dir = {}
 
-    # checks whether player piece is on the same direction as any direction with enemy piece
-    player_pieces = {}
-
-    for pos in board:
+    for pos in sorted_board:
+        if enemies == {}:
+            break
         x, y = pos
-        tp, _ = board[pos]
+        tp, val = sorted_board[pos]
         if tp == PLAYER:
-            if pos not in player_pieces:
-                player_pieces[pos] = 0
-            continue
-
-        # initialize the piece entry in direction dictionary
-        dict_dir[(x, y, (1, 0))]  = []
-        dict_dir[(x, y, (0, 1))]  = []
-        dict_dir[(x, y, (1, -1))] = []
-
-        # for every other piece on the board - if player then player on direction
-        for _pos in board:
-            _x, _y = _pos
-            _tp, _ = board[_pos]
-            if _tp == PLAYER:
-                player_pieces[pos] = 1
+            val += val < MAX_VAL
+        else:
+            val += 1
+            if val == SIZE:
                 continue
 
+        # initialize the piece entry in direction dictionary
+        for dir in all_dir:
+            dict_dir[(x, y, dir)]  = []
+
+        # for every other piece on the board - if player then player on direction
+        for _pos in enemies:
+            _x, _y = _pos
+            _tp, _ = board[_pos]
+
             # x-direction
+            x_diff = x - _x
+            y_diff = y - _y
+            xd_abs = abs(x_diff)
+            yd_abs = abs(y_diff)
             if _x == x and _y != y:
-                dict_dir[(x, y, (0, 1))].append(_pos)
+                sign = int(y_diff / yd_abs)
+                if yd_abs <= val:
+                    dict_dir[(x, y, (0, sign))].append(_pos)
+                if yd_abs <= SIZE - val:
+                    dict_dir[(x, y, (0, -sign))].append(_pos)
 
             # y-direction
             elif _x != x and _y == y:
-                dict_dir[(x, y, (1, 0))].append(_pos)
+                sign = int(x_diff / xd_abs)
+                if xd_abs <= val:
+                    dict_dir[(x, y, (sign, 0))].append(_pos)
+                if xd_abs <= SIZE - val:
+                    dict_dir[(x, y, (-sign, 0))].append(_pos)
 
             # vertical direction
             elif _x != x:
-                diff = abs(x - _x + y - _y)
+                diff = abs(x_diff + y_diff)
+                if xd_abs < yd_abs:
+                    x_sign = 1
+                    larger = yd_abs
+                else:
+                    x_sign = -1
+                    larger = xd_abs
+                y_sign = -x_sign
                 if diff == 0 or diff == SIZE:
-                    dict_dir[(x, y, (1, -1))].append(_pos)
+                    dict_dir[(x, y, (x_sign, y_sign))].append(_pos)
+                    if larger <= val:
+                        dict_dir[(x, y, (-x_sign, -y_sign))].append(_pos)
 
-        # delete empty enemy entries - implying that they do not share direction with any other pieces
-        # empty enemy entries also imply that they require at least 1 additional move to be spread on
-        empty = 0
-        if not dict_dir[(x, y, (0, 1))]:
-            del dict_dir[(x, y, (0, 1))]
-            empty += 1
-        if not dict_dir[(x, y, (1, 0))]:
-            del dict_dir[(x, y, (1, 0))]
-            empty += 1
-        if not dict_dir[(x, y, (1, -1))]:
-            del dict_dir[(x, y, (1, -1))]
-            empty += 1
-        num_moves += (empty == 3)
+        # list out to reduce overhead
+        max_captured = 0
+        captured = []
+        for dir in all_dir:
+            curr_len = len(dict_dir[(x, y, dir)])
+            if curr_len > max_captured:
+                max_captured = curr_len
+                captured = dict_dir[(x, y, dir)]
 
-    # whether any player piece is on same direction as any "enemy direction"
-    num_moves += not any(player_pieces.values())
-    del player_pieces
+        if not captured:
+            if pos in enemies:
+                num_moves += 1
+            continue
 
-    # then sort the direction dictionary by direction with the highest number of enemy pieces
-    dir_sort = list(map(lambda tup: (-len(tup[1]), tup[1]), dict_dir.items()))
+        for position in captured:
+            del enemies[position]
+        num_moves += 1
+
     del dict_dir
-
-    # due to it being min-heap (no max heap in Python3), we push negative lengths
-    found = False
-    heapq.heapify(dir_sort)
-    while dir_sort:
-        neg_len, pieces = heapq.heappop(dir_sort)
-        for piece in pieces:
-            found = piece not in spreaded
-            spreaded[piece] = 1
-        num_moves += found
-        del pieces
-
+    del sorted_board
+    del board_add
     return num_moves
 
 
