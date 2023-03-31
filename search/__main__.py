@@ -8,7 +8,7 @@ from .program import search, spread
 from .state import State
 from .utils import render_board
 from .test_boards import all_boards
-from .a_star import A_star
+from .a_star import A_star, h_add
 import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -58,7 +58,9 @@ def main():
 def test(name: str):
     board = all_boards[name]
     print(render_board(board))
-    print_sequence_board(board, A_star(board))
+    sequence = A_star(board)
+    print_sequence_board(board, sequence)
+    print(f'SEQUENCE: {sequence}')
     return
 
 
@@ -72,6 +74,11 @@ if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'test_case_2', 'priority_fail']
     test(names[3])
+
+    # board = all_boards['complex_1']
+    # board_add = list(map(lambda tup: (tup[0], h_add(tup[1])), board.items()))
+    # print(board_add)
+
     # d = {0: 1, 1: 1, 2: 1, 3: 0}
     # print(any(d.values()))
 
