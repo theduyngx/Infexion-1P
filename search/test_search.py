@@ -1,13 +1,9 @@
 import time
-import os
-# from . import program
-from program import check_victory, spread, RAJA_dfs_limited
-# from . import utils
+from program import check_victory, spread
 from dist_calculator import check_loop
 
-print(f'CUURR PATH: {os.getcwd()}')
-
 INF = 9999
+
 
 def main():
     board = {
@@ -45,6 +41,7 @@ def main():
     if 'd' not in d or d['z'][0] != 1:
         print("Lazy!")
 
+
 # RAJA: TESTS IDS IMPLEMENTATION
 def main2():
     st = time.time()
@@ -70,23 +67,20 @@ def main2():
     # valid = [([], INF, True)]
     # tracker = (INF, True)
 
-    print(search(board))
-
     # print(RAJA_dfs_limited(board, 1, movesList, valid=valid))
     # print(valid)
     et = time.time()
     print(f'Time Taken: {et-st}')
     return
 
+
 def main3():
-    x_dir = [0, -1, -1, 0, 1, 1]
-    y_dir = [1, 1, 0, -1, -1, 0]
-    all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
     board = {
         (5, 6): ("r", 2)
     }
     print(check_loop(board, (5, 6), (0, -1)))
     return
+
 
 if __name__ == '__main__':
     # main()
