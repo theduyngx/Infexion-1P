@@ -1,7 +1,9 @@
-# Author  : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-# File    : a_star.py
-# Purpose : Informed search algorithm A* to find the optimal sequence of moves for a given input state
-#           of a board to reach its goal state.
+"""
+    Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+    File    : ids.py
+    Purpose : Informed search algorithm A* to find the optimal sequence of moves for a given input state
+              of a board to reach its goal state.
+"""
 
 import queue
 from movement import *
@@ -15,20 +17,22 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     @param board : the provided board (initial state)
     @return      : the sequence of optimal moves
     """
-    min_found = queue.PriorityQueue()   # discovered nodes
-    g_cost = {}                         # real cumulative cost from root
-    f_cost = {}                         # best guess f = g + h
-    discovered = {}
+
+    open_min   = queue.PriorityQueue()  # open set ordered by minimal cost first
+    g_cost     = {}                     # real cumulative cost from root
+    f_cost     = {}                     # best guess f = g + h
+    discovered = {}                     # open set - set of all generated but un-expanded nodes
 
     curr_state = State(board, [], 0)    # current state initialized as init state
-    hash_curr = curr_state.__hash__()   # hashed state for dictionary accessing
-    min_found.put(curr_state)           # init state has now been discovered
-    discovered[hash_curr] = 1           # curr state discovered
-    g_cost[hash_curr] = 0               # real cost from init state
-    f_cost[hash_curr] = 0               # f cost from init to goal state
+    hash_curr  = curr_state.__hash__()  # hashed state for dictionary accessing
+    open_min.put(curr_state)            # init state has now been discovered
+    discovered[hash_curr] = 1
+    g_cost[hash_curr]     = 0           # real cost from init state
+    f_cost[hash_curr]     = 0           # f cost from init to goal state
 
-    while not min_found.empty():
-        curr_state = min_found.get()
+    # by using min-heap, we can immediately retrieve unexpanded nodes with lowest f-score
+    while not open_min.empty():
+        curr_state = open_min.get()
         hash_curr = curr_state.__hash__()
         del discovered[hash_curr]
 
@@ -36,22 +40,29 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
         if check_victory(curr_state.board):
             return curr_state.moves
 
+        # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
-            _ = spread(position=(x, y), direction=(dir_x, dir_y), board=new_state.board)
+
+            # each neighbor is a state resulted by single player move from current state
+            spread(position=(x, y),
+                   direction=(dir_x, dir_y),
+                   board=new_state.board)
             hash_new = new_state.__hash__()
+
             # true cost from init to new_state via curr_state
             g_cost_accum = g_cost[hash_curr] + 1
-
             if hash_new not in g_cost or g_cost_accum < g_cost[hash_new]:
                 g_cost[hash_new] = g_cost_accum
                 f_cost[hash_new] = g_cost_accum + h(new_state)
                 new_state.f_cost = f_cost[hash_new]
+
+                # update open sets
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
-                    min_found.put(new_state)
+                    open_min.put(new_state)
     return []
 
 

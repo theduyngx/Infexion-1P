@@ -1,6 +1,8 @@
-# Author  : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-# File    : movement.py
-# Purpose : Including functions related to moving a piece on the board.
+"""
+    Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+    File    : ids.py
+    Purpose : Including functions related to moving a piece on the board.
+"""
 
 from state import *
 from utils import render_board

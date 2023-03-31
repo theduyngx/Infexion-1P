@@ -1,7 +1,9 @@
-# Author  : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-# File    : ids.py
-# Purpose : Uninformed search algorithm IDS to find the optimal sequence of moves for a given input state
-#           of a board to reach its goal state.
+"""
+    Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+    File    : ids.py
+    Purpose : Uninformed search algorithm IDS to find the optimal sequence of moves for a given input state
+              of a board to reach its goal state.
+"""
 
 from movement import *
 

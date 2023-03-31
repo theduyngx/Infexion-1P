@@ -67,7 +67,9 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
 
 if __name__ == "__main__":
     st = time.time()
-    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'test_case_2', 'priority_fail']
-    test(names[4])
+    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
+             'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
+             'test_case_2', 'priority_fail']
+    test('complex_3')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
