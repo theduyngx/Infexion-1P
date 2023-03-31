@@ -85,32 +85,32 @@ def h2(state: State) -> int:
 
     for pos in board:
         x, y = pos
-        tp, val = board[pos]
+        tp, _ = board[pos]
         if tp == PLAYER:
             if pos not in player_pieces:
                 player_pieces[pos] = 0
             continue
 
         # initialize the piece entry in direction dictionary
-        dict_dir[(x, y, (1, 0))] = []
-        dict_dir[(x, y, (0, 1))] = []
+        dict_dir[(x, y, (1, 0))]  = []
+        dict_dir[(x, y, (0, 1))]  = []
         dict_dir[(x, y, (1, -1))] = []
 
         # for every other piece on the board - if player then player on direction
         for _pos in board:
             _x, _y = _pos
-            _tp, _val = board[_pos]
+            _tp, _ = board[_pos]
             if _tp == PLAYER:
                 player_pieces[pos] = 1
                 continue
 
             # x-direction
             if _x == x and _y != y:
-                dict_dir[(x, y, (1, 0))].append(_pos)
+                dict_dir[(x, y, (0, 1))].append(_pos)
 
             # y-direction
-            elif _x != x and _y != y:
-                dict_dir[(x, y, (0, 1))].append(_pos)
+            elif _x != x and _y == y:
+                dict_dir[(x, y, (1, 0))].append(_pos)
 
             # vertical direction
             elif _x != x and _y != y:
@@ -123,11 +123,11 @@ def h2(state: State) -> int:
         # delete empty enemy entries - implying that they do not share direction with any other pieces
         # empty enemy entries also imply that they require at least 1 additional move to be spread on
         empty = 0
-        if not dict_dir[(x, y, (1, 0))]:
-            del dict_dir[(x, y, (1, 0))]
-            empty += 1
         if not dict_dir[(x, y, (0, 1))]:
             del dict_dir[(x, y, (0, 1))]
+            empty += 1
+        if not dict_dir[(x, y, (1, 0))]:
+            del dict_dir[(x, y, (1, 0))]
             empty += 1
         if not dict_dir[(x, y, (1, -1))]:
             del dict_dir[(x, y, (1, -1))]

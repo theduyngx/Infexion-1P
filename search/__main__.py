@@ -71,7 +71,7 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
 if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'test_case_2', 'priority_fail']
-    test(names[0])
+    test(names[3])
     # d = {0: 1, 1: 1, 2: 1, 3: 0}
     # print(any(d.values()))
 
