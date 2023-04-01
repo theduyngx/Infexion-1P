@@ -73,6 +73,7 @@ def A_star(board: dict[tuple, tuple]) -> tuple: # list: #[tuple]:
             if (et-st >= 30):
                 return curr_state.moves, et-st
 
+    et = time.time()
     return [], et-st
 
 
@@ -120,6 +121,13 @@ def enemy_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
     """
     return {position: piece for position, piece in board.items() if piece[0] == ENEMY}
 
+def ally_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    """
+    Filter player pieces from the board, returning only a dictionary of enemies.
+    @param board : given board
+    @return      : the filtered board with only ally pieces
+    """
+    return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
 
 def h(state: State) -> int:
     """
