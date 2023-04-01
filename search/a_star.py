@@ -73,7 +73,7 @@ def A_star(board: dict[tuple, tuple]) -> tuple: # list: #[tuple]:
             if (et-st >= 30):
                 return curr_state.moves, et-st
 
-    return []
+    return [], et-st
 
 
 def get_neighbors(state: State) -> list: #[tuple]:
