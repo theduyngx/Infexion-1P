@@ -1,5 +1,6 @@
 import time
 import random
+from .state import ENEMY, PLAYER
 
 all_boards = {
     # Test case from the assignment
@@ -474,6 +475,23 @@ def make_dense_board(red_power: int, blue_power, red_start: tuple, blue_count: i
                 return new_board
     return new_board
 
+def make_dense_board_blue(blue_power: int, red_power, blue_start: tuple, red_count: int) -> dict:
+    new_board ={}
+    count = 0
+    blue_x, blue_y = blue_start
+
+    new_board[blue_start] = ('b', blue_power)
+
+    for i in range(7):
+        for j in range(7):
+            # print(f'Adding: {i, j}')
+            if not (i==blue_x and j==blue_y):
+                new_board[(i, j)] = ('r', red_power)
+            count+=1
+            if count >= red_count:
+                return new_board
+    return new_board
+
 def make_dense_board_random(red_power: int, red_start: tuple, blue_count: int) -> dict:
     new_board ={}
     count = 0
@@ -491,3 +509,55 @@ def make_dense_board_random(red_power: int, red_start: tuple, blue_count: int) -
             if count >= blue_count:
                 return new_board
     return new_board
+
+# PUTS RANDOM PIECES IN A GIVEN PROPORTION
+def make_ratio_board(red_count: int, count:int) -> dict:
+    new_board = {}
+    curr_count = 0
+
+    x_line = [i for i in range(7)]
+    y_line = [j for j in range(7)]
+
+    positions = dict.fromkeys(get_permutations(x_line, y_line), True)
+
+    while positions != {}:
+        curr_pos = random.choice(list(positions.keys()))
+        
+        if curr_count < red_count:
+            new_board[curr_pos] = ('r', random.randrange(1,2))
+        else:
+            new_board[curr_pos] = ('b', random.randrange(1,2))
+        del positions[curr_pos]
+        
+        curr_count += 1
+        if curr_count >= count:
+            return new_board
+
+    return new_board
+
+# Creates patterned red-blue kind of oard
+def make_alternating_board(count: int, power=1, is_random=False) -> dict:
+    new_board = {}
+    curr_count = 0
+
+    for i in range(7):
+        for j in range(7):
+            curr_power = power
+            if is_random:
+                curr_power = random.randrange(1, power)
+            # Decide on colors
+            if curr_count%2 != 0:
+                new_board[(i, j)] = ('r', curr_power)
+            else:
+                new_board[(i, j)] = ('b', curr_power)
+            curr_count += 1
+            if curr_count >= count:
+                return new_board
+
+    return new_board
+
+# HELPER FUNCTIONS
+def get_permutations(x_list,y_list):
+    for x in x_list:
+        for y in y_list:
+            yield (x,y)

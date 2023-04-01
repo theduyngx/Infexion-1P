@@ -7,7 +7,7 @@ import time
 from .program import search, spread
 from .state import State
 from .utils import render_board
-from .test_boards import all_boards, make_dense_board, make_dense_board_random
+from .test_boards import all_boards, make_dense_board, make_dense_board_random, make_dense_board_blue, make_alternating_board, make_ratio_board
 from .a_star import A_star
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -57,15 +57,16 @@ def main():
 def test(name: str):
     board = all_boards[name]
     print(render_board(board))
-    sequence = A_star(board)
+    sequence, new_time = A_star(board)
     print_sequence_board(board, sequence)
-    print(f'SEQUENCE: {sequence}')
+    print(f'SEQUENCE: {sequence}, TIME: {new_time}')
     return
 
 def test_density(red_start: tuple):
     for i in range(1, 50):
         st = time.time()
-        curr_board = make_dense_board(1, 6, red_start, i)
+        # curr_board = make_dense_board(1, 6, red_start, i)
+        curr_board = make_dense_board_blue(1, 1, red_start, i)
         print(render_board(curr_board))
         sequence, total_time = A_star(curr_board)
         # print_sequence_board(curr_board, sequence)
@@ -88,13 +89,40 @@ def test_density_random(red_start: tuple):
 
         print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
         print(f'TIME TAKEN: {total_time}')
-    range
+    return
+
+def test_alternating():
+    for i in range(1, 50):
+        st = time.time()
+        # curr_board = make_dense_board(1, 6, red_start, i)
+        curr_board = make_alternating_board(i)
+        print(render_board(curr_board))
+        sequence, total_time = A_star(curr_board)
+        # print_sequence_board(curr_board, sequence)
+        et = time.time()
+        total_time = min(total_time, et-st)
+        print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
+        print(f'TIME TAKEN: {total_time}') 
+    return
+
+def test_ratio(count):
+    for i in range(count+1, 50):
+        st = time.time()
+        curr_board = make_ratio_board(count, i)
+        print(render_board(curr_board))
+        sequence, total_time = A_star(curr_board)
+        et = time.time()
+        total_time = min(total_time, et-st)
+        print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
+        print(f'TIME TAKEN: {total_time}') 
+    return
 
 
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
     for x, y, dx, dy in sequence:
         spread((x, y), (dx, dy), board)
         print(render_board(board))
+    return
 
 
 if __name__ == "__main__":
@@ -102,12 +130,14 @@ if __name__ == "__main__":
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
              'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'test_case_2', 'priority_fail', 'dense_1', 'fully_dense']
-    
+    # test('sparse_1')
     # TEST FOR DENSITY WITH 1 PIECES
-    # test_density((0,0))
+    # test_density((3,3))
+    # test_alternating()
+    test_ratio(40)
 
     # TEST FOR DENSITY WITH RANDOM NUMBER OF POWER VALUES
     # EDIT test_boards function to control power values
-    test_density_random((0,0))
+    # test_density_random((0,0))
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
