@@ -2,14 +2,13 @@
 # Project Part A: Single Player Infexion
 
 import heapq
-
 from sys import stdin
+import time
 from .program import search, spread
 from .state import State
 from .utils import render_board
-from .test_boards import all_boards
+from .test_boards import all_boards, make_dense_board
 from .a_star import A_star
-import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.
@@ -63,6 +62,21 @@ def test(name: str):
     print(f'SEQUENCE: {sequence}')
     return
 
+def test_density(red_start: tuple):
+    for i in range(1, 37):
+        st = time.time()
+        curr_board = make_dense_board(1, red_start, i, 30)
+        print(render_board(curr_board))
+        sequence, total_time = A_star(curr_board)
+        # print_sequence_board(curr_board, sequence)
+        et = time.time()
+
+        total_time = min(total_time, et-st)
+
+        print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
+        print(f'TIME TAKEN: {total_time}')
+    return
+
 
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
     for x, y, dx, dy in sequence:
@@ -74,7 +88,8 @@ if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
              'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
-             'test_case_2', 'priority_fail']
-    test('complex_3')
+             'test_case_2', 'priority_fail', 'dense_1', 'fully_dense']
+    # test('fully_dense')
+    test_density((0,0))
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')

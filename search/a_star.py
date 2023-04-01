@@ -7,13 +7,14 @@
 """
 
 import queue
+import time
 from .movement import spread
 from .program import check_victory, spread
 from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
 from .dist_calculator import add_direction
 
 
-def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
+def A_star(board: dict[tuple, tuple]) -> tuple: # list: #[tuple]:
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
     @param board : the provided board (initial state)
@@ -33,6 +34,7 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
     f_cost[hash_curr]     = 0           # f cost from init to goal state
 
     # by using min-heap, we can immediately retrieve unexpanded nodes with lowest f-score
+    st = time.time()
     while not open_min.empty():
         curr_state = open_min.get()
         hash_curr = curr_state.__hash__()
@@ -40,7 +42,8 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
 
         # reached goal state
         if check_victory(curr_state.board):
-            return curr_state.moves
+            et = time.time()
+            return curr_state.moves, -1*(et-st)
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
@@ -65,6 +68,11 @@ def A_star(board: dict[tuple, tuple]) -> list: #[tuple]:
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
                     open_min.put(new_state)
+            
+            et = time.time()
+            if (et-st >= 30):
+                return curr_state.moves, et-st
+
     return []
 
 
