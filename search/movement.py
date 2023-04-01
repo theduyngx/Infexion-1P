@@ -4,9 +4,10 @@
     Purpose : Including functions related to moving a piece on the board.
 """
 
-from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE, INF
+from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
 from .utils import render_board
 
+INF = 9999
 
 def spread(position: tuple, direction: tuple, board: dict[tuple, tuple]) -> bool:
     """
