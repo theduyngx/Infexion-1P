@@ -2,7 +2,7 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search, spread
+from program import search, search_uninformed, spread
 from utils import render_board
 from test_boards import all_boards
 from a_star import A_star
@@ -55,7 +55,7 @@ def main():
 def test(name: str):
     board = all_boards[name]
     print(render_board(board))
-    print_sequence_board(board, A_star(board))
+    print_sequence_board(board, search_uninformed(board))
     return
 
 
@@ -68,8 +68,8 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
 if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
-             'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
+             'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es', 'all_laid_out',
              'test_case_2', 'priority_fail']
-    test('complex_3')
+    test('all_48_3')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')

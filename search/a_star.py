@@ -129,23 +129,23 @@ def h(state: State) -> int:
     # board_add increments 1 to pieces' stack: list of format (position=(x, y), piece=(type, value))
     board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1])), board.items()))
     sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
-    enemies      = enemy_filter(board)
+    uncaptured   = enemy_filter(board)
     num_moves    = 0
     dict_dir     = {}
 
     # from most stacked piece to least
     for pos in sorted_board:
-        if enemies == {}:
+        if uncaptured == {}:
             break
         x, y = pos
         tp, val = sorted_board[pos]
 
         # initialize the piece entry in direction dictionary
         for dir in all_dir:
-            dict_dir[(x, y, dir)]  = []
+            dict_dir[(x, y, dir)] = []
 
-        # for every other piece on the board - if player then player on direction
-        for _pos in enemies:
+        # for every un-captured enemy
+        for _pos in uncaptured:
             _x, _y = _pos
             _tp, _ = board[_pos]
             x_diff = x - _x
@@ -203,15 +203,15 @@ def h(state: State) -> int:
         if not captured:
             continue
 
-        # remove captured enemies from list of enemies left
+        # remove captured enemies from all un-captured enemies
         for position in captured:
-            del enemies[position]
+            del uncaptured[position]
         del captured
         num_moves += 1
 
     # cleanup
     del dict_dir
-    del enemies
+    del uncaptured
     del sorted_board
     del board_add
     return num_moves
