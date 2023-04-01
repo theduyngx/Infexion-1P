@@ -1,4 +1,5 @@
 import time
+import random
 
 all_boards = {
     # Test case from the assignment
@@ -59,6 +60,7 @@ all_boards = {
         (3, 6): ("b", 1),
         (5, 5): ("b", 1)
     },
+
     "complex_2": {
         (1, 0): ("r", 3),
         (2, 3): ("r", 1),
@@ -454,7 +456,7 @@ all_boards = {
 }
 
 # HELPER FUNCTIONS TO MAKE A DENSE BOARD
-def make_dense_board(red_power: int, red_start: tuple, blue_count: int, time_limit: float) -> dict:
+def make_dense_board(red_power: int, blue_power, red_start: tuple, blue_count: int) -> dict:
     new_board ={}
     count = 0
     red_x, red_y = red_start
@@ -466,7 +468,25 @@ def make_dense_board(red_power: int, red_start: tuple, blue_count: int, time_lim
         for j in range(7):
             # print(f'Adding: {i, j}')
             if not (i==red_x and j==red_y):
-                new_board[(i, j)] = ('b', 1)
+                new_board[(i, j)] = ('b', blue_power)
+            count+=1
+            if count >= blue_count:
+                return new_board
+    return new_board
+
+def make_dense_board_random(red_power: int, red_start: tuple, blue_count: int) -> dict:
+    new_board ={}
+    count = 0
+    red_x, red_y = red_start
+
+    new_board[red_start] = ('r', red_power)
+    count+=1
+
+    for i in range(7):
+        for j in range(7):
+            # print(f'Adding: {i, j}')
+            if not (i==red_x and j==red_y):
+                new_board[(i, j)] = ('b', random.randrange(1,3))
             count+=1
             if count >= blue_count:
                 return new_board

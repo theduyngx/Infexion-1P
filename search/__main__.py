@@ -7,7 +7,7 @@ import time
 from .program import search, spread
 from .state import State
 from .utils import render_board
-from .test_boards import all_boards, make_dense_board
+from .test_boards import all_boards, make_dense_board, make_dense_board_random
 from .a_star import A_star
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -63,19 +63,32 @@ def test(name: str):
     return
 
 def test_density(red_start: tuple):
-    for i in range(1, 37):
+    for i in range(1, 50):
         st = time.time()
-        curr_board = make_dense_board(1, red_start, i, 30)
+        curr_board = make_dense_board(1, 6, red_start, i)
         print(render_board(curr_board))
         sequence, total_time = A_star(curr_board)
         # print_sequence_board(curr_board, sequence)
         et = time.time()
-
         total_time = min(total_time, et-st)
 
         print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
         print(f'TIME TAKEN: {total_time}')
     return
+
+def test_density_random(red_start: tuple):
+    for i in range(1, 50):
+        st = time.time()
+        curr_board = make_dense_board_random(1, red_start, i)
+        print(render_board(curr_board))
+        sequence, total_time = A_star(curr_board)
+        # print_sequence_board(curr_board, sequence)
+        et = time.time()
+        total_time = min(total_time, et-st)
+
+        print(f'CURRENT NUM: {i},\nSEQUENCE: {sequence}')
+        print(f'TIME TAKEN: {total_time}')
+    range
 
 
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
@@ -89,7 +102,12 @@ if __name__ == "__main__":
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
              'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'test_case_2', 'priority_fail', 'dense_1', 'fully_dense']
-    # test('fully_dense')
-    test_density((0,0))
+    
+    # TEST FOR DENSITY WITH 1 PIECES
+    # test_density((0,0))
+
+    # TEST FOR DENSITY WITH RANDOM NUMBER OF POWER VALUES
+    # EDIT test_boards function to control power values
+    test_density_random((0,0))
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
