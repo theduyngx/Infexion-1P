@@ -78,5 +78,3 @@ if __name__ == "__main__":
     test('complex_3')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
-    et = time.time()
-    print(f'TOTAL TIME TAKEN: {et-st}')
