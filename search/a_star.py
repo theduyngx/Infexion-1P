@@ -120,6 +120,13 @@ def enemy_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
 
 
 def h(state: State) -> int:
+    """
+    Heuristic function: a hybrid, dynamic heuristic that applies different function depending on the
+    density of the board.
+
+    @param state : the given state of the board
+    @return      : the heuristic of said state (estimated number of moves to goal)
+    """
     if len(state.board) < DENSE:
         return h1(state)
     return h2(state)
@@ -239,4 +246,101 @@ def h2(state: State) -> int:
     @return      : the heuristic of said state (estimated number of moves to goal)
     """
 
-    return 1
+    board = state.board
+
+    # board_add increments 1 to pieces' stack: list of format (position=(x, y), piece=(type, value))
+    uncaptured   = enemy_filter(board)
+    num_player   = len(board) - len(uncaptured)
+    board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1], num_player)), board.items()))
+    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
+    num_moves    = 0
+    dict_dir     = {}
+
+    # from most stacked piece to least
+    for pos in sorted_board:
+        if not uncaptured:
+            break
+        x, y = pos
+        tp, val = sorted_board[pos]
+
+        # break if reached 1
+        if val <= 2:
+            break
+
+        # initialize the piece entry in direction dictionary
+        for dir in all_dir:
+            dict_dir[(x, y, dir)] = []
+
+        # for every un-captured enemy
+        for _pos in uncaptured:
+            _x, _y = _pos
+            _tp, _ = board[_pos]
+            x_diff = x - _x
+            y_diff = y - _y
+            xd_abs = abs(x_diff)
+            yd_abs = abs(y_diff)
+
+            # x-direction
+            if _x == x and _y != y:
+                sign = int(y_diff / yd_abs)
+
+                # add to both directions of x-direction if stack is sufficiently large
+                if yd_abs <= val:
+                    dict_dir[(x, y, (0, sign))].append(_pos)
+                if yd_abs <= SIZE - val:
+                    dict_dir[(x, y, (0, -sign))].append(_pos)
+
+            # y-direction
+            elif _x != x and _y == y:
+                sign = int(x_diff / xd_abs)
+
+                # add to both directions of y-direction if stack is sufficiently large
+                if xd_abs <= val:
+                    dict_dir[(x, y, (sign, 0))].append(_pos)
+                if xd_abs <= SIZE - val:
+                    dict_dir[(x, y, (-sign, 0))].append(_pos)
+
+            # vertical direction
+            elif _x != x:
+                diff = abs(x_diff + y_diff)
+                if xd_abs < yd_abs:
+                    x_sign = 1
+                    larger = yd_abs
+                else:
+                    x_sign = -1
+                    larger = xd_abs
+                y_sign = -x_sign
+
+                # add to both directions of vertical direction if stack is sufficiently large
+                if diff == 0 or diff == SIZE:
+                    dict_dir[(x, y, (x_sign, y_sign))].append(_pos)
+                    if larger <= val:
+                        dict_dir[(x, y, (-x_sign, -y_sign))].append(_pos)
+
+        # check the direction with most captures
+        max_captured = 0
+        captured = []
+        for dir in all_dir:
+            curr_len = len(dict_dir[(x, y, dir)])
+            if curr_len > max_captured:
+                max_captured = curr_len
+                captured = dict_dir[(x, y, dir)]
+
+        # if no capture
+        if not captured:
+            continue
+
+        # remove captured enemies from all un-captured enemies
+        for position in captured:
+            del uncaptured[position]
+        del captured
+        num_moves += 1
+
+    num_moves += len(uncaptured) - (len(uncaptured) % 2)
+
+    # cleanup
+    del dict_dir
+    del uncaptured
+    del sorted_board
+    del board_add
+    return num_moves
