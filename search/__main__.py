@@ -8,7 +8,8 @@ from .program import search, spread
 from .state import State
 from .utils import render_board
 from .test_boards import all_boards, make_dense_board, make_dense_board_random, make_dense_board_blue, make_alternating_board, make_ratio_board
-from .a_star import A_star
+from .a_star import A_star, greedy_blue, greedy_red, enemy_filter, ally_filter
+from .greedy_heuristic import h_greedy
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
 #          You should be modifying the search function in program.py instead.
@@ -117,11 +118,60 @@ def test_ratio(count):
         print(f'TIME TAKEN: {total_time}') 
     return
 
+def test_h_greedy(board):
+    test_state = State(board, [], 0)
+    print(render_board(board))
+    num_moves = h_greedy(test_state)
+    print(f'Num Moves: {num_moves}')
+    return
+
 
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
     for x, y, dx, dy in sequence:
         spread((x, y), (dx, dy), board)
         print(render_board(board))
+    return
+
+def test_reduce_red(board: dict[tuple, tuple]):
+    sequence, curr_time = [], float("inf")
+    eats = 0
+    print(render_board(board))
+
+    while curr_time >= 30:
+        print(f'CURRENT EATS: {eats}')
+        print(render_board(board))
+        board = greedy_blue(test_board)
+        sequence, curr_time = A_star(board)
+        print(f'Time Taken: {curr_time}, Eats: {eats}')
+        eats += 1
+
+    print(render_board(board))
+    print(f'EATS TAKEN: {eats}')
+    num_blues = len(enemy_filter(board))
+    num_reds = len(ally_filter(board))
+    print(f'NUM BLUES: {num_blues}, NUM REDS: {num_reds}')
+    print(f'TIME TAKEN: {curr_time}')
+    return
+
+def test_reduce_blu(board: dict[tuple, tuple]):
+    sequence, curr_time = [], float("inf")
+    eats = 0
+    print(render_board(board))
+
+    while curr_time >= 30:
+        print(f'CURRENT EATS: {eats}')
+        print(render_board(board))
+        board = greedy_red(test_board)
+        sequence, curr_time = A_star(board)
+        print(f'Time Taken: {curr_time}, Eats: {eats}')
+        eats += 1
+
+    print(render_board(board))
+    print(f'EATS TAKEN: {eats}')
+    num_blues = len(enemy_filter(board))
+    num_reds = len(ally_filter(board))
+    print(f'NUM BLUES: {num_blues}, NUM REDS: {num_reds}')
+    print(f'TIME TAKEN: {curr_time}')
     return
 
 
@@ -130,11 +180,19 @@ if __name__ == "__main__":
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'complex_1', 'complex_2', 'complex_3',
              'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'test_case_2', 'priority_fail', 'dense_1', 'fully_dense']
-    # test('sparse_1')
     # TEST FOR DENSITY WITH 1 PIECES
     # test_density((3,3))
     # test_alternating()
-    test_ratio(40)
+    # test_ratio(40)
+    test_board = all_boards['all_1_48'].copy()
+    # test('complex_1')
+    # test_h_greedy(test_board)
+    # print(render_board(test_board))
+    # test_board = greedy_red(test_board)
+    # test_board = greedy_blue(test_board)
+    # print(render_board(test_board))
+
+    test_reduce_blu(test_board)
 
     # TEST FOR DENSITY WITH RANDOM NUMBER OF POWER VALUES
     # EDIT test_boards function to control power values
