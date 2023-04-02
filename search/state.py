@@ -1,6 +1,6 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-    File    : ids.py
+    File    : state.py
     Purpose : Including functions directly related to the board, as well as other global constants of a board
               and the class State, which includes the board itself and other metadata.
 """
@@ -13,6 +13,8 @@ ENEMY   = "b"
 x_dir   = [0, -1, -1, 0, 1, 1]
 y_dir   = [1, 1, 0, -1, -1, 0]
 all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
+
+DENSE   = 20
 
 
 # A structure representing state of board

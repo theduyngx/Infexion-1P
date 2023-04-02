@@ -1,6 +1,6 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-    File    : ids.py
+    File    : a_star.py
     Purpose : Informed search algorithm A* to find the optimal sequence of moves for a given input state
               of a board to reach its goal state.
 """
@@ -17,6 +17,8 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     @param board : the provided board (initial state)
     @return      : the sequence of optimal moves
     """
+
+    num_op = 0
 
     open_min   = queue.PriorityQueue()  # open set ordered by minimal cost first
     g_cost     = {}                     # real cumulative cost from root
@@ -38,10 +40,12 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
 
         # reached goal state
         if check_victory(curr_state.board):
+            print("Number of operations =", num_op)
             return curr_state.moves
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
+            num_op += 1
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
@@ -88,17 +92,18 @@ def get_neighbors(state: State) -> [tuple]:
 # ------------------------------------- HEURISTIC ----------------------------------------- #
 
 
-def piece_value_increment(cell: tuple) -> tuple:
+def piece_value_increment(cell: tuple, num_player: int) -> tuple:
     """
     For a given cell, which is a tuple in the form (position, piece), and piece is a tuple in the form
     (piece type, stack value), increment its stack value.
 
-    @param cell : the provided cell;
-    @return     : cell with incremented stack value of piece on it
+    @param cell       : the provided cell
+    @param num_player : number of player pieces
+    @return           : cell with incremented stack value of piece on it
     """
     tp, val = cell
     if tp == PLAYER:
-        val += val < MAX_VAL
+        val += (val < MAX_VAL) * (num_player > 1)
     else:
         val += 1
     return tp, val
@@ -115,8 +120,15 @@ def enemy_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
 
 
 def h(state: State) -> int:
+    if len(state.board) < DENSE:
+        return h1(state)
+    return h2(state)
+
+
+def h1(state: State) -> int:
     """
-    Heuristic function: For every piece (from most stacked to least), we check the most number of enemies
+    Heuristic function for sparse state:
+    For every piece (from most stacked to least), we check the most number of enemies
     that can be captured by it, regardless of the piece type (player or enemy). Once that is established,
     all said enemies are considered captured and will be ignored by subsequent checks.
 
@@ -127,15 +139,16 @@ def h(state: State) -> int:
     board = state.board
 
     # board_add increments 1 to pieces' stack: list of format (position=(x, y), piece=(type, value))
-    board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1])), board.items()))
-    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
     uncaptured   = enemy_filter(board)
+    num_player   = len(board) - len(uncaptured)
+    board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1], num_player)), board.items()))
+    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
     num_moves    = 0
     dict_dir     = {}
 
     # from most stacked piece to least
     for pos in sorted_board:
-        if uncaptured == {}:
+        if not uncaptured:
             break
         x, y = pos
         tp, val = sorted_board[pos]
@@ -215,3 +228,15 @@ def h(state: State) -> int:
     del sorted_board
     del board_add
     return num_moves
+
+
+def h2(state: State) -> int:
+    """
+    Heuristic function for dense state:
+    Only check for stacked pieces. The rest uncaptured enemies will be calculated differently.
+
+    @param state : given current state
+    @return      : the heuristic of said state (estimated number of moves to goal)
+    """
+
+    return 1
