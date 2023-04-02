@@ -12,6 +12,7 @@ from .movement import spread
 from .program import check_victory, spread
 from .state import State, all_dir, MAX_VAL, PLAYER, ENEMY, SIZE
 from .dist_calculator import add_direction
+from .greedy_heuristic import h_greedy
 
 
 def A_star(board: dict[tuple, tuple]) -> tuple: # list: #[tuple]:
@@ -229,3 +230,112 @@ def h(state: State) -> int:
     del sorted_board
     del board_add
     return num_moves
+
+# ------------------------------------- TRIM BOARD ----------------------------------------- #
+def get_max_target(board: dict[tuple, tuple]) -> tuple:
+    reds = ally_filter(board)
+    blues = enemy_filter(board)
+    new_list = []
+    max_power = 0
+
+    # First select the dominated part of the board
+    if len(blues) >= len(reds):
+        target = blues
+        color = PLAYER
+    
+    else:
+        target = reds
+        color = ENEMY
+
+    # Now find the pieces with highest power
+    for key in target.keys():
+        curr_power = board[key][1]
+        if curr_power > max_power:
+            max_power = curr_power
+            new_list = [key]
+        elif curr_power == max_power:
+            new_list.append(key)
+    
+    return new_list, color
+
+def greedy_red(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    all_reds = ally_filter(board=board)
+    max_blues = 0
+    return_dir = ()
+    use_red = ()
+
+    # Look through every red and find out which red + direction
+    # captures the most blues
+    for red in all_reds:
+        curr_power = board[red][1]
+        curr_blues = 0
+        for dir in all_dir:
+            dir_blues = 0
+            new_pos = red
+            for _ in range(curr_power):
+                new_pos = add_direction(new_pos, dir)
+                if new_pos in board and board[new_pos][0] == ENEMY:
+                    dir_blues += 1
+            if dir_blues > curr_blues:
+                curr_blues = dir_blues
+                local_dir = dir
+        
+        if curr_blues > max_blues:
+            max_blues = curr_blues
+            return_dir = local_dir
+            use_red = red
+    
+    # Now after deciding that you want to spread the desired red
+    # piece into the location
+    _ = spread(use_red, return_dir, board)
+
+    return board
+
+def greedy_blue(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    # First create the dictionary for the blues
+    all_blues = enemy_filter(board=board)
+    all_blues = sorted(all_blues.keys(), key=lambda x: board[x][1], reverse=True)
+
+    # Make a new dictionary for each direction
+    # Dictionary will map blue and direction to closest red distance and adjacent blues
+    # So (blue, dir) : (red to move, closest red dist, adjacent blues)
+    blue_dict = {}
+
+
+    # Iterate through all blues to find
+    # the closest one 
+    for blue in all_blues:
+        # curr_power = board[blue][1]
+        # curr_blues = 0
+        # curr_red = ()
+        # red_reach = 0
+        new_pos = blue
+        for dir in all_dir:
+            blue_dict[(blue, dir)] = (0, 0)
+            new_pos = blue
+            red_dist = float("inf")
+            adjacent_blues = 0
+            move_red = ()
+            curr_power = board[blue][1]
+            # Iterate through all the spaces 
+            for i in range(1,7):
+                new_pos = add_direction(new_pos, dir)
+                if new_pos in board:
+                    if board[new_pos][0] == ENEMY and (curr_power-i) >= 0:
+                        adjacent_blues += 1
+                    elif board[new_pos][0] == PLAYER:
+                        move_red = new_pos
+                        red_power = board[new_pos][1]
+                        red_dist = min(red_dist, abs(i-red_power)+1)
+            # Now store it into the dictionary
+            blue_dict[(blue, dir)] = (move_red, -1*red_dist, adjacent_blues)
+    
+    # Now we have to sort the dictionary based on the sum of the red_dist and adjacent_blues,
+    # Ideally 
+
+    best_blue = sorted(blue_dict.items(), key=lambda x: x[1][1] + x[1][2], reverse=True)[0]
+
+    _ = spread(best_blue[1][0], best_blue[0][1], board)
+
+    return board
+
