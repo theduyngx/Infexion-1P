@@ -1,13 +1,16 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-    File    : state.py
+    Module  : state.py
     Purpose : Including functions directly related to the board, as well as other global constants of a board
               and the class State, which includes the board itself and other metadata.
 """
 
-INF     = 9999
+MIN_VAL = 1
 MAX_VAL = 6
 SIZE    = MAX_VAL + 1
+TOTAL   = SIZE ** 2
+INF     = 9999
+
 PLAYER  = "r"
 ENEMY   = "b"
 x_dir   = [0, -1, -1, 0, 1, 1]

@@ -146,10 +146,10 @@ def make_enemy_priority(board: dict[tuple, tuple]) -> dict[tuple, int]:
 
 
 # Add and subtract coordinates in an INFLEXION board
-def add_direction(a: tuple, b: tuple):
+def add_direction(pos: tuple, dir: tuple):
     tmp_pos = [INF, INF]
     for i in range(2):
-        new_val = a[i] + b[i]
+        new_val = pos[i] + dir[i]
         if new_val > MAX_VAL:
             new_val = new_val - SIZE
         elif new_val < 0:

@@ -1,13 +1,87 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-    File    : a_star.py
+    Module  : a_star.py
     Purpose : Informed search algorithm A* to find the optimal sequence of moves for a given input state
               of a board to reach its goal state.
 """
 
 import queue
+import heapq
 from movement import *
 from state import *
+
+from search.heuristic import add_direction
+
+
+def informed_search(board: dict[tuple, tuple]) -> [tuple]:
+    all_1 = (len(board) == TOTAL)
+    if not all_1:
+        for pos in board:
+            tp, val = board[pos]
+            if val != MIN_VAL:
+                all_1 = False
+                break
+            # if tp == ENEMY:
+            #     if val != MAX_VAL or val != MIN_VAL:
+            #         all_1 = False
+            #         break
+            # else:
+            #     if val != MIN_VAL:
+            #         all_1 = False
+            #         break
+    if all_1:
+        return greedy_search(board)
+    return A_star(board)
+
+
+# ------------------------------------- GREEDY SEARCH ----------------------------------------- #
+
+
+def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
+    board_copy = board.copy()
+    moves = []
+    while not check_victory(board_copy):
+
+        # max-heapify the board
+        board_heap = list(map(lambda tup: (-tup[1][1], tup[0]), board_copy.items()))
+        heapq.heapify(board_heap)
+
+        # now instead of looping in pos, we pop the max constantly until
+        # we get the number of blues captured that match the current max
+        while board_heap:
+            curr = heapq.heappop(board_heap)
+            neg_val, pos = curr
+            val = abs(neg_val)
+            move_to = None
+
+            # for each direction, we check which move would fill up a number of enemies that is equal to
+            # the stack value of the current player piece
+            for dir in all_dir:
+                filled = True
+                new_pos = pos
+                for _ in range(val):
+                    new_pos = add_direction(new_pos, dir)
+                    if new_pos not in board_copy:
+                        filled = False
+                        break
+                    tp, _ = board_copy[new_pos]
+                    if tp == PLAYER:
+                        filled = False
+                        break
+                if filled:
+                    move_to = dir
+                    break
+            # we found the direction to move to, append to move list
+            if move_to:
+                spread(pos, move_to, board_copy)
+                x, y = pos
+                dir_x, dir_y = move_to
+                moves.append((x, y, dir_x, dir_y))
+                break
+    return moves
+
+
+# ------------------------------------- A-STAR SEARCH ----------------------------------------- #
 
 
 def A_star(board: dict[tuple, tuple]) -> [tuple]:
@@ -264,7 +338,7 @@ def h2(state: State) -> int:
         tp, val = sorted_board[pos]
 
         # break if reached 1
-        if val <= 2:
+        if val <= MIN_VAL + 1:
             break
 
         # initialize the piece entry in direction dictionary

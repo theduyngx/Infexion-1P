@@ -1,12 +1,12 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
-    File    : program.py
+    Module  : program.py
     Purpose : Based on The University of Melbourne skeleton code - Project Part A: Single Player Infexion,
               COMP30024 Artificial Intelligence, Semester 1 2023. Includes the search functions for finding
               the optimal paths to reach goal state.
 """
 
-from a_star import A_star
+from a_star import informed_search
 from ids import *
 
 
@@ -17,7 +17,7 @@ def search(input: dict[tuple, tuple]) -> list[tuple]:
     @param input : the input initial board
     @return      : sequence of optimal moves
     """
-    return A_star(input)
+    return informed_search(input)
 
 
 def search_uninformed(board: dict[tuple, tuple]) -> list[tuple]:
