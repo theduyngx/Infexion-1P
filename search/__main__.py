@@ -2,10 +2,11 @@
 # Project Part A: Single Player Infexion
 
 from sys import stdin
-from program import search, spread
+from program import search
 from utils import render_board
+
+from movement import spread
 from test_boards import all_boards
-from a_star import A_star
 import time
 
 # WARNING: Do *not* modify any of the code in this file, and submit it as is!
@@ -70,6 +71,6 @@ if __name__ == "__main__":
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail',
              'complex_1', 'complex_2', 'complex_3', 'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_46_3']
-    test('all_31_18')
+    test('all_1_48')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')

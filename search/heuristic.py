@@ -78,7 +78,7 @@ def get_heuristic(player: tuple, enemy: tuple, dir: tuple, board: dict[tuple, tu
 
     # Position the player piece to the farthest possible position after
     # it spreads to specified direction
-    new_pos = add_direction(player, apply_scalar_dir(dir, curr_power))
+    new_pos = move_increment_by_direction(player, apply_scalar_dir(dir, curr_power))
 
     # Calculate the adjacent enemies and the enemy piece with the highest power
     adj_enemies, max_enemies = adjacent_enemies(board, player, dir)
@@ -97,7 +97,7 @@ def get_heuristic_priority(player: tuple, enemy: tuple, dir: tuple, board: dict[
     new_pos = player
     avg_distance = 0
     for _ in range(curr_power):
-        new_pos = add_direction(new_pos, dir)
+        new_pos = move_increment_by_direction(new_pos, dir)
         curr_distance = calc_distance(new_pos, enemy)
         avg_distance += curr_distance
     return avg_distance/curr_power
@@ -111,7 +111,7 @@ def adjacent_enemies(board: dict[tuple, tuple], player: tuple, dir: tuple) -> tu
     new_pos   = player
     max_num_enemy = 0
     for i in range(curr_pow):
-        new_pos = add_direction(new_pos, dir)
+        new_pos = move_increment_by_direction(new_pos, dir)
         if new_pos in board and board[new_pos][0] == ENEMY:
             num_enemy += 1
             if 6 > board[new_pos][1] > max_num_enemy:
@@ -134,7 +134,7 @@ def make_enemy_priority(board: dict[tuple, tuple]) -> dict[tuple, int]:
         enemy_pow    = board[enemy][1]
         for dir in all_dir:
             for _ in range(enemy_pow):
-                new_pos = add_direction(new_pos, dir)
+                new_pos = move_increment_by_direction(new_pos, dir)
                 # CONSIDER: Do we still add an enemy if enemy's power is 6?
                 if new_pos in board and board[new_pos][0] == ENEMY:
                     # num_enemy += board[new_pos][1]
@@ -146,7 +146,7 @@ def make_enemy_priority(board: dict[tuple, tuple]) -> dict[tuple, int]:
 
 
 # Add and subtract coordinates in an INFLEXION board
-def add_direction(pos: tuple, dir: tuple):
+def move_increment_by_direction(pos: tuple, dir: tuple):
     tmp_pos = [INF, INF]
     for i in range(2):
         new_val = pos[i] + dir[i]

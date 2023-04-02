@@ -8,7 +8,7 @@
 from movement import *
 
 
-def dfs_limited(board: dict[tuple, tuple], depth: int, moves: list, valid: list):
+def DFS_limited(board: dict[tuple, tuple], depth: int, moves: list, valid: list):
     """
     Depth-first limited search algorithm used for IDS. Searching up till a certain specified depth.
 
@@ -33,12 +33,12 @@ def dfs_limited(board: dict[tuple, tuple], depth: int, moves: list, valid: list)
             if check:
                 moves.append((key[0], key[1], dir[0], dir[1]))
                 curr_moves = moves.copy()
-                dfs_limited(diff_board, depth-1, curr_moves, valid)
+                DFS_limited(diff_board, depth-1, curr_moves, valid)
                 moves = moves[:-1]
     return
 
 
-def ids_score(board: dict[tuple, tuple]) -> tuple:
+def IDS(board: dict[tuple, tuple]) -> tuple:
     """
     IDS score of a given board.
 
@@ -49,7 +49,7 @@ def ids_score(board: dict[tuple, tuple]) -> tuple:
     moves = []
     depth = 0
     while True:
-        dfs_limited(board, depth, moves, valid)
+        DFS_limited(board, depth, moves, valid)
         if len(valid) > 1:
             return valid[1][0], valid[1][1]
         moves = []

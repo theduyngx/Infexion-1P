@@ -10,25 +10,24 @@ import heapq
 from movement import *
 from state import *
 
-from search.heuristic import add_direction
+from search.heuristic import move_increment_by_direction
 
 
 def informed_search(board: dict[tuple, tuple]) -> [tuple]:
+    """
+    Informed search algorithm - hybrid algorithm using primarily A*, among other informed algorithms
+    in special cases.
+
+    @param board : the given board
+    @return      : the optimal sequence of moves to reach goal state
+    """
     all_1 = (len(board) == TOTAL)
-    if not all_1:
+    if not all_1 and len(board) >= DENSE:
         for pos in board:
             tp, val = board[pos]
             if val != MIN_VAL:
                 all_1 = False
                 break
-            # if tp == ENEMY:
-            #     if val != MAX_VAL or val != MIN_VAL:
-            #         all_1 = False
-            #         break
-            # else:
-            #     if val != MIN_VAL:
-            #         all_1 = False
-            #         break
     if all_1:
         return greedy_search(board)
     return A_star(board)
@@ -38,6 +37,12 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
 
 
 def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
+    """
+    Greedy search algorithm in the special case of the entire board being pieces with value of 1.
+
+    @param board : the given board
+    @return      : optimal sequence of moves to reach goal state
+    """
     board_copy = board.copy()
     moves = []
     while not check_victory(board_copy):
@@ -60,7 +65,7 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                 filled = True
                 new_pos = pos
                 for _ in range(val):
-                    new_pos = add_direction(new_pos, dir)
+                    new_pos = move_increment_by_direction(new_pos, dir)
                     if new_pos not in board_copy:
                         filled = False
                         break
@@ -201,9 +206,9 @@ def h(state: State) -> int:
     @param state : the given state of the board
     @return      : the heuristic of said state (estimated number of moves to goal)
     """
-    if len(state.board) < DENSE:
-        return h1(state)
-    return h2(state)
+    if len(state.board) >= DENSE:
+        return h2(state)
+    return h1(state)
 
 
 def h1(state: State) -> int:

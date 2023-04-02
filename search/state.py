@@ -9,6 +9,7 @@ MIN_VAL = 1
 MAX_VAL = 6
 SIZE    = MAX_VAL + 1
 TOTAL   = SIZE ** 2
+DENSE   = 20
 INF     = 9999
 
 PLAYER  = "r"
@@ -17,10 +18,7 @@ x_dir   = [0, -1, -1, 0, 1, 1]
 y_dir   = [1, 1, 0, -1, -1, 0]
 all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
 
-DENSE   = 20
 
-
-# A structure representing state of board
 class State:
     """
     A structure representing state of board, including these attributes:

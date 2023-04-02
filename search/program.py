@@ -6,8 +6,8 @@
               the optimal paths to reach goal state.
 """
 
-from a_star import informed_search
-from ids import *
+from informed_search import informed_search
+from uninformed_search import IDS
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:
@@ -30,5 +30,5 @@ def search_uninformed(board: dict[tuple, tuple]) -> list[tuple]:
     """
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
-    min_ret, _ = ids_score(board)
+    min_ret, _ = IDS(board)
     return min_ret
