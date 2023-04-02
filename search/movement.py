@@ -20,7 +20,7 @@ def spread(position: tuple, direction: tuple, board: dict[tuple, tuple]) -> bool
     """
 
     # Check first if position in dictionary/is a red piece
-    if position not in board or board[position][0] == ENEMY:
+    if position not in board:
         return False
 
     # also another safety protocol check if direction is valid
