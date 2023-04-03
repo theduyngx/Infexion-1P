@@ -25,7 +25,7 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
     if not all_1 and len(board) >= DENSE:
         for pos in board:
             tp, val = board[pos]
-            if val != MIN_VAL:
+            if tp == ENEMY and val != MIN_VAL:
                 all_1 = False
                 break
     if all_1:
@@ -59,17 +59,19 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
 
         # max-heapify the board
         player_filtered = player_filter(board_copy)
-        board_heap = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
-        heapq.heapify(board_heap)
+        player_heap     = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
+        heapq.heapify(player_heap)
+        max_captured = 0
+        move_pos     = ()
+        move_to      = ()
 
         # now instead of looping in pos, we pop the max constantly until
         # we get the number of blues captured that match the current max
-        while board_heap:
-            curr = heapq.heappop(board_heap)
+        while player_heap:
+            curr = heapq.heappop(player_heap)
             neg_val, pos = curr
             val = abs(neg_val)
-            move_to = None
-            max_captured = 0
+            found = not player_heap
 
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
@@ -85,21 +87,25 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                         continue
                     num_captured += 1
 
+                # if the maximum number of captured already exceeds the current stack value
+                if max_captured >= val:
+                    found = True
+                    break
                 # if number of captured equals its maximum potential, we stop
                 if num_captured == val:
                     move_to = dir
+                    move_pos = pos
+                    found = True
                     break
                 # if it exceeds current max number of captured but not fully fulfilling its potential
                 elif num_captured > max_captured:
                     max_captured = num_captured
                     move_to = dir
-                # otherwise, we simply stop
-                elif max_captured > 0:
-                    break
+                    move_pos = pos
             # we found the direction to move to, append to move list
-            if move_to:
-                spread(pos, move_to, board_copy)
-                x, y = pos
+            if found:
+                spread(move_pos, move_to, board_copy)
+                x, y = move_pos
                 dir_x, dir_y = move_to
                 moves.append((x, y, dir_x, dir_y))
                 break

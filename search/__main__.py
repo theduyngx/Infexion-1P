@@ -63,7 +63,9 @@ def test(name: str):
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
     for x, y, dx, dy in sequence:
         spread((x, y), (dx, dy), board)
+        print(f"SPREAD {x} {y} {dx} {dy}")
         print(render_board(board))
+    print("Takes", len(sequence), "number of moves to reach goal state")
 
 
 if __name__ == "__main__":
