@@ -7,8 +7,8 @@
 
 import queue
 import heapq
-from movement import *
-from state import *
+from .movement import *
+from .state import *
 
 from search.heuristic import move_increment_by_direction
 
