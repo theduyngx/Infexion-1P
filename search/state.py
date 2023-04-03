@@ -14,8 +14,8 @@ INF     = 9999
 
 PLAYER  = "r"
 ENEMY   = "b"
-x_dir   = [0, -1, -1, 0, 1, 1]
-y_dir   = [1, 1, 0, -1, -1, 0]
+x_dir   = [1, 0, -1, -1, 0, 1]
+y_dir   = [0, 1, 1, 0, -1, -1]
 all_dir = [(x_dir[i], y_dir[i]) for i in range(len(x_dir))]
 
 

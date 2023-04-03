@@ -28,6 +28,7 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
             if tp == ENEMY and val != MIN_VAL:
                 all_1 = False
                 break
+            all_1 = True
     if all_1:
         return greedy_search(board)
     return A_star(board)
@@ -49,6 +50,9 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
 def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     """
     Greedy search algorithm in the special case of the entire board being pieces with value of 1.
+    MISSING: another priority --> from a move, how many scatterd blue will it create.
+    The better ones would be ones that leave less scattered blue.
+    This is the second priority.
 
     @param board : the given board
     @return      : optimal sequence of moves to reach goal state
@@ -61,23 +65,24 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
         player_filtered = player_filter(board_copy)
         player_heap     = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
         heapq.heapify(player_heap)
-        max_captured = 0
-        move_pos     = ()
-        move_to      = ()
+        max_captured  = 0
+        num_scattered = INF
+        move_pos      = ()
+        move_to       = ()
 
         # now instead of looping in pos, we pop the max constantly until
         # we get the number of blues captured that match the current max
         while player_heap:
-            curr = heapq.heappop(player_heap)
-            neg_val, pos = curr
+            neg_val, pos = heapq.heappop(player_heap)
             val = abs(neg_val)
             found = not player_heap
 
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
             for dir in all_dir:
-                new_pos = pos
-                num_captured = 0    # number of enemies captured by a direction move
+                new_pos        = pos
+                curr_scattered = 0
+                curr_captured  = 0    # number of enemies captured by a direction move
                 for _ in range(val):
                     new_pos = move_increment_by_direction(new_pos, dir)
                     if new_pos not in board_copy:
@@ -85,23 +90,24 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                     tp, _ = board_copy[new_pos]
                     if tp == PLAYER:
                         continue
-                    num_captured += 1
+                    curr_captured += 1
+                    curr_scattered += no_adjacent_enemies(board_copy, new_pos)
 
                 # if the maximum number of captured already exceeds the current stack value
-                if max_captured >= val:
+                if max_captured > val:
                     found = True
                     break
-                # if number of captured equals its maximum potential, we stop
-                if num_captured == val:
-                    move_to = dir
-                    move_pos = pos
-                    found = True
-                    break
-                # if it exceeds current max number of captured but not fully fulfilling its potential
-                elif num_captured > max_captured:
-                    max_captured = num_captured
-                    move_to = dir
-                    move_pos = pos
+                # if number of captured equals its maximum potential
+                # NOTE: we don't stop here, we must check the second priority here, store it and if it is
+                # the best possible move, we will only stop at the previous condition
+                elif curr_captured >= max_captured:
+                    if curr_scattered < num_scattered or curr_captured > max_captured:
+                        print(curr_scattered, num_scattered)
+                        max_captured = curr_captured
+                        move_to = dir
+                        move_pos = pos
+                        num_scattered = curr_scattered
+                        found = True
             # we found the direction to move to, append to move list
             if found:
                 spread(move_pos, move_to, board_copy)
@@ -110,6 +116,39 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                 moves.append((x, y, dir_x, dir_y))
                 break
     return moves
+
+
+def no_adjacent_enemies(board: dict[tuple, tuple], captured_pos: tuple) -> int:
+    num_scattered = 0
+    for dir in all_dir:
+        adjacent_captured = move_increment_by_direction(captured_pos, dir)
+        if adjacent_captured in board:
+            tp, val = board[adjacent_captured]
+
+            # we don't care about adjacents that are player pieces
+            if tp == PLAYER:
+                continue
+
+            # for each adjacents of said captured adjacent, we have to check whether there are no enemy pieces
+            # adjacent to it
+            no_adjacents = True
+            for new_dir in all_dir:
+                new_pos = move_increment_by_direction(adjacent_captured, new_dir)
+
+                # if adjacent piece goes back to captured position, we skip
+                if new_pos == captured_pos:
+                    continue
+
+                # if the interested position is in the board
+                if new_pos in board:
+                    new_tp, _ = board[new_pos]
+                    # then we must make sure if enemy then there are adjacents after all
+                    if new_tp == ENEMY:
+                        no_adjacents = False
+                        break
+
+            num_scattered += no_adjacents
+    return num_scattered
 
 
 # ------------------------------------- A-STAR SEARCH ----------------------------------------- #
