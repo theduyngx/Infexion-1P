@@ -72,7 +72,7 @@ if __name__ == "__main__":
     st = time.time()
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail',
              'complex_1', 'complex_2', 'complex_3', 'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
-             'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5']
-    test('all_1_48')
+             'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
+    test('all_2_2')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')
