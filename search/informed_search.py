@@ -10,8 +10,6 @@ import heapq
 from .movement import *
 from .state import *
 
-from search.heuristic import move_increment_by_direction
-
 
 def informed_search(board: dict[tuple, tuple]) -> [tuple]:
     """
@@ -111,6 +109,25 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                 moves.append((x, y, dir_x, dir_y))
                 break
     return moves
+
+
+def move_increment_by_direction(pos: tuple, dir: tuple) -> tuple:
+    """
+    Move a piece on given position by 1 move as per the given direction.
+
+    @param pos : given position of to-move piece
+    @param dir : the move direction
+    @return    : new position
+    """
+    tmp_pos = [INF, INF]
+    for i in range(2):
+        new_val = pos[i] + dir[i]
+        if new_val > MAX_VAL:
+            new_val = new_val - SIZE
+        elif new_val < 0:
+            new_val = SIZE + new_val
+        tmp_pos[i] = new_val
+    return tuple(tmp_pos)
 
 
 def get_captured_and_scattered(board: dict[tuple, tuple], player_pos: tuple, player_dir: tuple) -> tuple:
