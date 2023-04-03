@@ -49,10 +49,9 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
 
 def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     """
-    Greedy search algorithm in the special case of the entire board being pieces with value of 1.
-    MISSING: another priority --> from a move, how many scatterd blue will it create.
-    The better ones would be ones that leave less scattered blue.
-    This is the second priority.
+    Greedy search algorithm in the special case of all enemy pieces have value of 1. The first priority is to
+    capture as many enemies as possible, and the second is to leave as little number of scattered enemies on
+    the board as possible. Not optimal.
 
     @param board : the given board
     @return      : optimal sequence of moves to reach goal state
@@ -81,12 +80,14 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
             for dir in all_dir:
-                num_captured, num_scattered = get_num_scattered(board, pos, val, dir)
 
                 # if the maximum number of captured already exceeds the current stack value
                 if max_captured > val:
                     found = True
                     break
+
+                # get the number of captured and scattered enemies as a result of spread
+                num_captured, num_scattered = get_captured_and_scattered(board_copy, pos, dir)
 
                 # if it exceeds current max number of captured but not fully fulfilling its potential
                 if num_captured > max_captured:
@@ -94,6 +95,8 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                     move_to = dir
                     move_pos = pos
                     min_scattered = num_scattered
+
+                # if number of captured enemies is equal to current max, we consider the second priority
                 elif num_captured == max_captured > 0:
                     if num_scattered < min_scattered:
                         move_to = dir
@@ -110,10 +113,23 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     return moves
 
 
-def get_num_scattered(board: dict[tuple, tuple], player_pos: tuple, player_val: int, player_dir: tuple) -> tuple:
-    num_scattered = 0
+def get_captured_and_scattered(board: dict[tuple, tuple], player_pos: tuple, player_dir: tuple) -> tuple:
+    """
+    Get the number of captured enemies, and scattered (isolated from other enemies) as a result of a specific
+    spread move.
+
+    @param board      : given board
+    @param player_pos : player position where spread move
+    @param player_dir : the direction of the spread move
+    @return           : number of enemies captured from spread, and number of scattered enemies
+    """
+
+    if player_pos not in board:
+        return ()
     num_captured  = 0
+    num_scattered = 0
     captured_pos  = player_pos
+    _, player_val = board[player_pos]
 
     for i in range(player_val):
         x_capt_dir, y_capt_dir = player_dir
@@ -159,7 +175,6 @@ def get_num_scattered(board: dict[tuple, tuple], player_pos: tuple, player_val: 
                         if new_tp == ENEMY:
                             no_adjacents = False
                             break
-
                 num_scattered += no_adjacents
     return num_captured, num_scattered
 
