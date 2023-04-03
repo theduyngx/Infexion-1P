@@ -5,7 +5,6 @@
 """
 
 from state import *
-from utils import render_board
 
 
 def spread(position: tuple, direction: tuple, board: dict[tuple, tuple]) -> bool:
@@ -73,20 +72,3 @@ def make_move(position: tuple, direction: tuple, board: dict[tuple, tuple]) -> t
     else:
         board[new_pos] = (PLAYER, 1)
     return new_pos
-
-
-def check_loop(board: dict[tuple, tuple], position: tuple, direction: tuple) -> bool:
-    # Assumes the board only has one red piece
-    returned = position
-    count = 0
-
-    while True:
-        print(render_board(board))
-        spread(list(board.keys())[0], direction, board)
-        count += 1
-        if list(board.keys())[0] == returned:
-            break
-
-    print(render_board(board))
-    print(f'From {position} in {direction}, took {count} spaces')
-    return True

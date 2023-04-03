@@ -36,6 +36,16 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
 # ------------------------------------- GREEDY SEARCH ----------------------------------------- #
 
 
+def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
+    """
+    Filter player pieces from the board, returning only a dictionary of enemies.
+
+    @param board : given board
+    @return      : the filtered board with only enemies
+    """
+    return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
+
+
 def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     """
     Greedy search algorithm in the special case of the entire board being pieces with value of 1.
@@ -48,7 +58,8 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     while not check_victory(board_copy):
 
         # max-heapify the board
-        board_heap = list(map(lambda tup: (-tup[1][1], tup[0]), board_copy.items()))
+        player_filtered = player_filter(board_copy)
+        board_heap = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
         heapq.heapify(board_heap)
 
         # now instead of looping in pos, we pop the max constantly until
@@ -58,23 +69,32 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
             neg_val, pos = curr
             val = abs(neg_val)
             move_to = None
+            max_captured = 0
 
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
             for dir in all_dir:
-                filled = True
                 new_pos = pos
+                num_captured = 0    # number of enemies captured by a direction move
                 for _ in range(val):
                     new_pos = move_increment_by_direction(new_pos, dir)
                     if new_pos not in board_copy:
-                        filled = False
-                        break
+                        continue
                     tp, _ = board_copy[new_pos]
                     if tp == PLAYER:
-                        filled = False
-                        break
-                if filled:
+                        continue
+                    num_captured += 1
+
+                # if number of captured equals its maximum potential, we stop
+                if num_captured == val:
                     move_to = dir
+                    break
+                # if it exceeds current max number of captured but not fully fulfilling its potential
+                elif num_captured > max_captured:
+                    max_captured = num_captured
+                    move_to = dir
+                # otherwise, we simply stop
+                elif max_captured > 0:
                     break
             # we found the direction to move to, append to move list
             if move_to:
