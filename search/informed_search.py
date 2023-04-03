@@ -66,48 +66,40 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
         player_heap     = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
         heapq.heapify(player_heap)
         max_captured  = 0
-        num_scattered = INF
+        min_scattered = INF
         move_pos      = ()
         move_to       = ()
 
         # now instead of looping in pos, we pop the max constantly until
         # we get the number of blues captured that match the current max
         while player_heap:
-            neg_val, pos = heapq.heappop(player_heap)
+            curr = heapq.heappop(player_heap)
+            neg_val, pos = curr
             val = abs(neg_val)
             found = not player_heap
 
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
             for dir in all_dir:
-                new_pos        = pos
-                curr_scattered = 0
-                curr_captured  = 0    # number of enemies captured by a direction move
-                for _ in range(val):
-                    new_pos = move_increment_by_direction(new_pos, dir)
-                    if new_pos not in board_copy:
-                        continue
-                    tp, _ = board_copy[new_pos]
-                    if tp == PLAYER:
-                        continue
-                    curr_captured += 1
-                    curr_scattered += no_adjacent_enemies(board_copy, new_pos)
+                num_captured, num_scattered = get_num_scattered(board, pos, val, dir)
 
                 # if the maximum number of captured already exceeds the current stack value
                 if max_captured > val:
                     found = True
                     break
-                # if number of captured equals its maximum potential
-                # NOTE: we don't stop here, we must check the second priority here, store it and if it is
-                # the best possible move, we will only stop at the previous condition
-                elif curr_captured >= max_captured:
-                    if curr_scattered < num_scattered or curr_captured > max_captured:
-                        print(curr_scattered, num_scattered)
-                        max_captured = curr_captured
+
+                # if it exceeds current max number of captured but not fully fulfilling its potential
+                if num_captured > max_captured:
+                    max_captured = num_captured
+                    move_to = dir
+                    move_pos = pos
+                    min_scattered = num_scattered
+                elif num_captured == max_captured > 0:
+                    if num_scattered < min_scattered:
                         move_to = dir
                         move_pos = pos
-                        num_scattered = curr_scattered
-                        found = True
+                        min_scattered = num_scattered
+
             # we found the direction to move to, append to move list
             if found:
                 spread(move_pos, move_to, board_copy)
@@ -118,37 +110,58 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
     return moves
 
 
-def no_adjacent_enemies(board: dict[tuple, tuple], captured_pos: tuple) -> int:
+def get_num_scattered(board: dict[tuple, tuple], player_pos: tuple, player_val: int, player_dir: tuple) -> tuple:
     num_scattered = 0
-    for dir in all_dir:
-        adjacent_captured = move_increment_by_direction(captured_pos, dir)
-        if adjacent_captured in board:
-            tp, val = board[adjacent_captured]
+    num_captured  = 0
+    captured_pos  = player_pos
 
-            # we don't care about adjacents that are player pieces
-            if tp == PLAYER:
+    for i in range(player_val):
+        x_capt_dir, y_capt_dir = player_dir
+        if i > 0:
+            x_capt_dir = -x_capt_dir
+            y_capt_dir = -y_capt_dir
+        captured_pos = move_increment_by_direction(captured_pos, player_dir)
+        if captured_pos not in board:
+            continue
+        tp, _ = board[captured_pos]
+        if tp == PLAYER:
+            continue
+
+        # we found an enemy captured piece, now we must find if this leaves any isolated enemies
+        num_captured += 1
+
+        # for each direction of captured position, we get its adjacent piece
+        for dir in all_dir:
+            if dir == (x_capt_dir, y_capt_dir):
                 continue
+            adjacent_captured = move_increment_by_direction(captured_pos, dir)
+            if adjacent_captured in board:
+                tp, val = board[adjacent_captured]
 
-            # for each adjacents of said captured adjacent, we have to check whether there are no enemy pieces
-            # adjacent to it
-            no_adjacents = True
-            for new_dir in all_dir:
-                new_pos = move_increment_by_direction(adjacent_captured, new_dir)
-
-                # if adjacent piece goes back to captured position, we skip
-                if new_pos == captured_pos:
+                # we don't care about adjacents that are player pieces
+                if tp == PLAYER:
                     continue
 
-                # if the interested position is in the board
-                if new_pos in board:
-                    new_tp, _ = board[new_pos]
-                    # then we must make sure if enemy then there are adjacents after all
-                    if new_tp == ENEMY:
-                        no_adjacents = False
-                        break
+                # for each adjacents of said (captured enemy's) adjacent, we have to check whether there are
+                # no enemy pieces adjacent to it or not
+                no_adjacents = True
+                for new_dir in all_dir:
+                    new_pos = move_increment_by_direction(adjacent_captured, new_dir)
 
-            num_scattered += no_adjacents
-    return num_scattered
+                    # if adjacent piece goes back to captured position, we skip
+                    if new_pos == captured_pos:
+                        continue
+
+                    # if the interested position is in the board
+                    if new_pos in board:
+                        new_tp, _ = board[new_pos]
+                        # then we must make sure if enemy then there are adjacents after all
+                        if new_tp == ENEMY:
+                            no_adjacents = False
+                            break
+
+                num_scattered += no_adjacents
+    return num_captured, num_scattered
 
 
 # ------------------------------------- A-STAR SEARCH ----------------------------------------- #
