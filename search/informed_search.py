@@ -207,8 +207,6 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
     @return      : the sequence of optimal moves
     """
 
-    num_op = 0
-
     open_min   = queue.PriorityQueue()  # open set ordered by minimal cost first
     g_cost     = {}                     # real cumulative cost from root
     f_cost     = {}                     # best guess f = g + h
@@ -229,12 +227,10 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
 
         # reached goal state
         if check_victory(curr_state.board):
-            print("Number of operations =", num_op)
             return curr_state.moves
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
-            num_op += 1
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
