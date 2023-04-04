@@ -16,8 +16,9 @@ def search_informed(board: dict[tuple, tuple]) -> ([tuple], int, str):
     in special cases.
 
     @param board : the given board
-    @return      : the number of generations required,
-                   the optimal sequence of moves to reach goal state
+    @return      : the optimal sequence of moves to reach goal state,
+                   the number of generations required,
+                   the search algorithm name
     """
     all_1 = (len(board) == TOTAL)
     if not all_1 and len(board) >= DENSE:
@@ -38,9 +39,11 @@ def search_uninformed(board: dict[tuple, tuple]) -> (list[tuple], int, str):
     its goal state.
 
     @param board : given board
-    @return      : sequence of optimal moves to reach goal state
+    @return      : the sequence of optimal moves to reach goal state,
+                   the number of generations required,
+                   the search algorithm name
     """
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
-    num_operations, min_ret = IDS(board)
-    return min_ret, num_operations, IDS.__name__
+    sequence, num_operations = IDS(board)
+    return sequence, num_operations, IDS.__name__
