@@ -343,9 +343,12 @@ def h1(state: State) -> int:
     uncaptured   = enemy_filter(board)
     num_player   = len(board) - len(uncaptured)
     board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1], num_player)), board.items()))
-    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
+    sorted_board = dict(sorted(board_add, key=lambda tup: (tup[1][1], tup[1][0]), reverse=True))
     num_moves    = 0
-    dict_dir     = {}
+
+    # dictionaries to keep track of direction captures
+    dict_dir = {}
+    max_captured = []
 
     # EDIT:
     # now for each captured direction, we don't delete the entries immediately like we are doing now
@@ -365,12 +368,39 @@ def h1(state: State) -> int:
     # else, we do the same thing.
     # Until either the captured dictionary is empty, or the heap is empty
 
+    # ANOTHER important aspect is that when sorting the sorted board list, red with equal value to blue must
+    # precede it (more prioritized in other words) --> DONE!!
+
     # from most stacked piece to least
     for pos in sorted_board:
         if not uncaptured:
             break
         x, y = pos
         tp, val = sorted_board[pos]
+        moved = False
+
+        # check if val less than current highest potential of max_captured
+        # not quite correct yet, after this we must check to make sure the length of the captured list is corrected
+        # since we don't know if there are enemy pieces already captured by something else from before
+        if val < max_captured[0][0]:
+            num_captured, entry = heapq.heappop(max_captured)
+            x_moved, y_moved, dir_moved = entry
+
+            # remove stuffs in dict_dir
+            for dir in all_dir:
+                entry = dict_dir[(x_moved, y_moved, dir)]
+                if moved or not entry:
+                    del entry
+
+            # remove captured enemies from all un-captured enemies
+            captured = dict_dir[(x_moved, y_moved, dir_moved)]
+            for position in captured:
+                # if moved fulfils potential then we delete enemies from uncaptured and dict_dir entries
+                del uncaptured[position]
+
+            # remove unnecessary
+            num_moves += 1
+            continue
 
         # initialize the piece entry in direction dictionary
         for dir in all_dir:
@@ -423,23 +453,36 @@ def h1(state: State) -> int:
                         dict_dir[(x, y, (-x_sign, -y_sign))].append(_pos)
 
         # check the direction with most captures
-        max_captured = 0
+        num_captured = 0
         captured = []
         for dir in all_dir:
             curr_len = len(dict_dir[(x, y, dir)])
-            if curr_len > max_captured:
-                max_captured = curr_len
+            if curr_len > num_captured:
+                num_captured = curr_len
                 captured = dict_dir[(x, y, dir)]
+            if num_captured == val:
+                moved = True
+                break
 
         # if no capture
         if not captured:
             continue
 
+        # remove stuffs in dict_dir
+        for dir in all_dir:
+            entry = dict_dir[(x, y, dir)]
+            if moved or not entry:
+                del entry
+            else:
+                heap_entry = len(entry), (x, y, dir)
+                heapq.heappush(max_captured, heap_entry)
+
         # remove captured enemies from all un-captured enemies
-        for position in captured:
-            del uncaptured[position]
-        del captured
-        num_moves += 1
+        if moved:
+            for position in captured:
+                # if moved fulfils potential then we delete enemies from uncaptured and dict_dir entries
+                del uncaptured[position]
+            num_moves += 1
 
     num_moves += (uncaptured != {})
 
