@@ -100,23 +100,29 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_o
     @param algo           : search algorithm name
     @param time_taken     : time taken to execute the search
     """
+
     print("")
-    print("---------------------------------------------------")
-    print("---------------- INITIAL STATE --------------------")
-    print("---------------------------------------------------")
+    print("------------------------------------------------------")
+    print("------------------- INITIAL STATE --------------------")
+    print("------------------------------------------------------")
+    print("")
     print(render_board(board))
-    print("\n")
-    print("---------------------------------------------------")
-    print("--------------------- MOVES -----------------------")
-    print("---------------------------------------------------")
+    print("")
+    print("------------------------------------------------------")
+    print("----------------------- MOVES ------------------------")
+    print("------------------------------------------------------")
+    num_move = 0
+
     for x, y, dx, dy in sequence:
+        num_move += 1
         spread((x, y), (dx, dy), board)
-        print(f"SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
+        print(f"Move #{num_move}: SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
         print(render_board(board))
-        print("---------------------------------------------------")
-    print("------------------ STATISTICS ---------------------")
-    print("---------------------------------------------------")
-    print(f"SEARCH ALGORITHM\t\t:\t{algo}")
-    print(f"NUMBER OF MOVES\t\t\t:\t{len(sequence)}")
-    print(f"NUMBER OF GENERATIONS\t:\t{num_operations}")
-    print(f'TOTAL TIME TAKEN\t\t:\t{time_taken}')
+        print("------------------------------------------------------")
+
+    print("-------------------- STATISTICS ----------------------")
+    print("------------------------------------------------------")
+    print(f"SEARCH ALGORITHM\t\t :\t{algo}")
+    print(f"NUMBER OF MOVES\t\t\t :\t{len(sequence)}")
+    print(f"NUMBER OF GENERATIONS\t :\t{num_operations}")
+    print(f'TOTAL TIME TAKEN\t\t :\t{time_taken}')
