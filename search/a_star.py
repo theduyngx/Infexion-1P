@@ -10,7 +10,7 @@ from state import *
 from movement import spread
 
 
-def A_star(board: dict[tuple, tuple]) -> (int, [tuple]):
+def A_star(board: dict[tuple, tuple]) -> ([tuple], int):
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
 
@@ -41,7 +41,7 @@ def A_star(board: dict[tuple, tuple]) -> (int, [tuple]):
 
         # reached goal state
         if check_victory(curr_state.board):
-            return num_operations, curr_state.moves
+            return curr_state.moves, num_operations
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
@@ -68,7 +68,7 @@ def A_star(board: dict[tuple, tuple]) -> (int, [tuple]):
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
                     open_min.put(new_state)
-    return []
+    return [], num_operations
 
 
 def get_neighbors(state: State) -> [tuple]:

@@ -8,7 +8,7 @@
 from typing import Callable
 import time
 
-from program import search, search_uninformed
+from program import *
 from test_boards import all_boards
 from utils import *
 
@@ -49,22 +49,20 @@ def main(board: dict[tuple, tuple], search_f: Callable[[dict[tuple, tuple]], tup
     @param search_f : the search function
     @param board    : the given board
     """
-    num_operations, sequence = search_f(board)
-    display_name = get_algorithm_name(search_f.__name__, len(board))
-    print_sequence_board(board, sequence, num_operations, display_name)
+    start = time.time()
+    sequence, num_operations, func_name = search_f(board)
+    end = time.time()
+    time_taken = end - start
+    display_name = get_algorithm_name(func_name)
+    print_sequence_board(board, sequence, num_operations, display_name, time_taken)
     return
 
 
 if __name__ == "__main__":
-    # timer
-    st = time.time()
-
     # names of all test boards
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail',
              'complex_1', 'complex_2', 'complex_3', 'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
 
     # run test
-    test('test_case', search_f=search)
-    et = time.time()
-    print(f'TOTAL TIME TAKEN\t\t:  {et-st}')
+    test('all_1_48', search_f=search_informed)

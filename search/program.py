@@ -1,26 +1,38 @@
 """
     Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
     Module  : program.py
-    Purpose : Based on The University of Melbourne skeleton code - Project Part A: Single Player Infexion,
-              COMP30024 Artificial Intelligence, Semester 1 2023. Includes the search functions for finding
-              the optimal paths to reach goal state.
+    Purpose : The program with 2 different search strategies - informed and uninformed.
 """
 
-from informed_search import informed_search
+from state import *
 from ids import IDS
+from greedy_search import Greedy_search
+from a_star import A_star
 
 
-def search(input: dict[tuple, tuple]) -> (int, list[tuple]):
+def search_informed(board: dict[tuple, tuple]) -> ([tuple], int, str):
     """
-    Main search function - using informed search A* algorithm to find optimal path.
+    Informed search algorithm - hybrid algorithm using primarily A*, among other informed algorithms
+    in special cases.
 
-    @param input : the input initial board
-    @return      : sequence of optimal moves
+    @param board : the given board
+    @return      : the number of generations required,
+                   the optimal sequence of moves to reach goal state
     """
-    return informed_search(input)
+    all_1 = (len(board) == TOTAL)
+    if not all_1 and len(board) >= DENSE:
+        for pos in board:
+            tp, val = board[pos]
+            if tp == ENEMY and val != MIN_VAL:
+                all_1 = False
+                break
+            all_1 = True
+    func = Greedy_search if all_1 else A_star
+    sequence, num_operations = func(board)
+    return sequence, num_operations, func.__name__
 
 
-def search_uninformed(board: dict[tuple, tuple]) -> (int, list[tuple]):
+def search_uninformed(board: dict[tuple, tuple]) -> (list[tuple], int, str):
     """
     Uninformed search algorithm finding the optimal sequence of moves for a given board to reach
     its goal state.
@@ -31,4 +43,4 @@ def search_uninformed(board: dict[tuple, tuple]) -> (int, list[tuple]):
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
     num_operations, min_ret = IDS(board)
-    return num_operations, min_ret
+    return min_ret, num_operations, IDS.__name__

@@ -20,7 +20,7 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
     return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
 
 
-def Greedy_search(board: dict[tuple, tuple]) -> (int, list[tuple]):
+def Greedy_search(board: dict[tuple, tuple]) -> (list[tuple], int):
     """
     Greedy search algorithm in the special case of all enemy pieces have value of 1. The first priority is to
     capture as many enemies as possible, and the second is to leave as little number of scattered enemies on
@@ -88,7 +88,7 @@ def Greedy_search(board: dict[tuple, tuple]) -> (int, list[tuple]):
                 dir_x, dir_y = move_to
                 moves.append((x, y, dir_x, dir_y))
                 break
-    return num_operations, moves
+    return moves, num_operations
 
 
 def move_increment_by_direction(pos: tuple, dir: tuple) -> tuple:

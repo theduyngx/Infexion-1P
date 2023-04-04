@@ -5,7 +5,6 @@
               Single Player Infexion, COMP30024 Artificial Intelligence, Semester 1 2023. Utility functions.
 """
 
-from state import DENSE
 from movement import spread
 
 
@@ -79,22 +78,19 @@ def render_board(board: dict[tuple, tuple], ansi=True) -> str:
     return output
 
 
-def get_algorithm_name(f_name: str, density: int) -> str:
+def get_algorithm_name(f_name: str) -> str:
     """
     Function to get the search algorithm name, just for display.
 
     @param f_name  : function name
-    @param density : board density
     @return        : algorithm name
     """
-    if f_name == "search":
-        display_name = "Informed search - A*" if density < DENSE else "Informed search - Greedy"
-    else:
-        display_name = "Uninformed search - IDS"
+    display_name = f_name.replace("_", " ").replace(" star", "*")
     return display_name
 
 
-def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_operations: int, algo: str):
+def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_operations: int,
+                         algo: str, time_taken: float):
     """
     Print the different boards resulted from a sequence of moves.
 
@@ -102,6 +98,7 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_o
     @param sequence       : sequence of moves
     @param num_operations : required number of generations to generate sequence
     @param algo           : search algorithm name
+    @param time_taken     : time taken to execute the search
     """
     print("")
     print("---------------------------------------------------")
@@ -119,6 +116,7 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_o
         print("---------------------------------------------------")
     print("------------------ STATISTICS ---------------------")
     print("---------------------------------------------------")
-    print("SEARCH ALGORITHM\t\t: ", algo)
-    print(f"NUMBER OF MOVES\t\t\t:  {len(sequence)}")
-    print(f"NUMBER OF GENERATIONS\t:  {num_operations}")
+    print(f"SEARCH ALGORITHM\t\t:\t{algo}")
+    print(f"NUMBER OF MOVES\t\t\t:\t{len(sequence)}")
+    print(f"NUMBER OF GENERATIONS\t:\t{num_operations}")
+    print(f'TOTAL TIME TAKEN\t\t:\t{time_taken}')

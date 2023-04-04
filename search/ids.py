@@ -41,7 +41,7 @@ def DFS_limited(board: dict[tuple, tuple], depth: int, moves: list, valid: list)
     return num_operations
 
 
-def IDS(board: dict[tuple, tuple]) -> (int, list[tuple]):
+def IDS(board: dict[tuple, tuple]) -> (list[tuple], int):
     """
     IDS score of a given board.
 
@@ -56,6 +56,6 @@ def IDS(board: dict[tuple, tuple]) -> (int, list[tuple]):
         num_operations += DFS_limited(board, depth, moves, valid)
         if len(valid) > 1:
             sequence = valid[1][0]
-            return num_operations, sequence
+            return sequence, num_operations
         moves = []
         depth += 1
