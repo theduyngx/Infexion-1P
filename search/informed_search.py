@@ -347,6 +347,24 @@ def h1(state: State) -> int:
     num_moves    = 0
     dict_dir     = {}
 
+    # EDIT:
+    # now for each captured direction, we don't delete the entries immediately like we are doing now
+    # unless the entry has length 0 (meaning no captured possible).
+
+    # If the number of captured == the stack value of piece, then it has fulfilled its potential and we can
+    # delete it as per usual and update captured dictionary
+
+    # Otherwise, we must keep those entries, push to a heap and move on; heap entry:
+    # (length of list of captured pieces (L), position, captured list)
+
+    # We move on to the next highest stack value (sorted board)
+    # if the stack value of that is less than L of heap[0] (don't pop it yet): then that means our current
+    # highest stack is already lower than most potential currently anyway so we pop, num_moves += 1 and update
+    # the captured dictionary
+
+    # else, we do the same thing.
+    # Until either the captured dictionary is empty, or the heap is empty
+
     # from most stacked piece to least
     for pos in sorted_board:
         if not uncaptured:
