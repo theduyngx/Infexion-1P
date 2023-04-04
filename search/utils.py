@@ -23,7 +23,7 @@ def apply_ansi(string, bold=True, color=None):
     return f"{bold_code}{color_code}{string}\033[0m"
 
 
-def render_board(board: dict[tuple, tuple], ansi=False) -> str:
+def render_board(board: dict[tuple, tuple], ansi=True) -> str:
     """
     Visualise the Infexion hex board via a multiline ASCII string. The layout corresponds to the
     axial coordinate system as described in the game specification document.

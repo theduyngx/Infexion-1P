@@ -6,8 +6,8 @@
               the optimal paths to reach goal state.
 """
 
-from .informed_search import informed_search
-from .uninformed_search import IDS
+from informed_search import informed_search
+from uninformed_search import IDS
 
 
 def search(input: dict[tuple, tuple]) -> list[tuple]:

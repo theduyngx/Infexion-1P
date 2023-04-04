@@ -7,8 +7,8 @@
 
 import queue
 import heapq
-from .movement import *
-from .state import *
+from movement import *
+from state import *
 
 
 def informed_search(board: dict[tuple, tuple]) -> [tuple]:
@@ -29,7 +29,7 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
             all_1 = True
     if all_1:
         return greedy_search(board)
-    return A_star(board)
+    return A_star(board, debug=True)
 
 
 # ------------------------------------- GREEDY SEARCH ----------------------------------------- #
@@ -199,13 +199,16 @@ def get_captured_and_scattered(board: dict[tuple, tuple], player_pos: tuple, pla
 # ------------------------------------- A-STAR SEARCH ----------------------------------------- #
 
 
-def A_star(board: dict[tuple, tuple]) -> [tuple]:
+def A_star(board: dict[tuple, tuple], debug=False) -> [tuple]:
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
 
     @param board : the provided board (initial state)
+    @param debug : debug mode printing out number of node generations
     @return      : the sequence of optimal moves
     """
+
+    num_operations = 0
 
     open_min   = queue.PriorityQueue()  # open set ordered by minimal cost first
     g_cost     = {}                     # real cumulative cost from root
@@ -227,6 +230,8 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
 
         # reached goal state
         if check_victory(curr_state.board):
+            if debug:
+                print("Number of generations is", num_operations)
             return curr_state.moves
 
         # for each neighboring node (direct child) of current state
@@ -234,6 +239,8 @@ def A_star(board: dict[tuple, tuple]) -> [tuple]:
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
+
+            num_operations += 1
 
             # each neighbor is a state resulted by single player move from current state
             spread(position=(x, y),
@@ -291,6 +298,8 @@ def piece_value_increment(cell: tuple, num_player: int) -> tuple:
         val += (val < MAX_VAL) * (num_player > 1)
     else:
         val += 1
+        if val >= SIZE:
+            val -= SIZE
     return tp, val
 
 
@@ -413,6 +422,8 @@ def h1(state: State) -> int:
             del uncaptured[position]
         del captured
         num_moves += 1
+
+    num_moves += (uncaptured != {})
 
     # cleanup
     del dict_dir

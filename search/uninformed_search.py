@@ -5,7 +5,7 @@
               of a board to reach its goal state.
 """
 
-from .movement import *
+from movement import *
 
 
 def DFS_limited(board: dict[tuple, tuple], depth: int, moves: list, valid: list):

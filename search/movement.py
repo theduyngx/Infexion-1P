@@ -4,7 +4,7 @@
     Purpose : Including functions related to moving a piece on the board.
 """
 
-from .state import *
+from state import *
 
 
 def spread(position: tuple, direction: tuple, board: dict[tuple, tuple]) -> bool:
