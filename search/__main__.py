@@ -55,17 +55,26 @@ def main():
 
 def test(name: str):
     board = all_boards[name]
+    print("\n")
+    print("---------------------------------------------------")
+    print("---------------- INITIAL STATE --------------------")
+    print("---------------------------------------------------")
     print(render_board(board))
     print_sequence_board(board, search(board))
     return
 
 
 def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple]):
+    print("\n")
+    print("---------------------------------------------------")
+    print("--------------------- MOVES -----------------------")
+    print("---------------------------------------------------")
     for x, y, dx, dy in sequence:
         spread((x, y), (dx, dy), board)
-        print(f"SPREAD {x} {y} {dx} {dy}")
+        print(f"SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
         print(render_board(board))
-    print("Takes", len(sequence), "number of moves to reach goal state")
+        print("---------------------------------------------------")
+    print(f"NUMBER OF MOVES: {len(sequence)}")
 
 
 if __name__ == "__main__":
@@ -73,9 +82,6 @@ if __name__ == "__main__":
     names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail',
              'complex_1', 'complex_2', 'complex_3', 'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
-    # test('complex_1')
-    # b = [(1, ("b", 3)), (0, ("r", 3))]
-    # sorted_board = dict(sorted(b, key=lambda tup: (tup[1][1], tup[1][0]), reverse=True))
-    # print(sorted_board)
+    test('complex_2')
     et = time.time()
     print(f'TOTAL TIME TAKEN: {et-st}')

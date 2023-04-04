@@ -28,7 +28,7 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
                 break
             all_1 = True
     if all_1:
-        return greedy_search(board)
+        return greedy_search(board, debug=True)
     return A_star(board, debug=True)
 
 
@@ -45,15 +45,19 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
     return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
 
 
-def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
+def greedy_search(board: dict[tuple, tuple], debug=False) -> list[tuple]:
     """
     Greedy search algorithm in the special case of all enemy pieces have value of 1. The first priority is to
     capture as many enemies as possible, and the second is to leave as little number of scattered enemies on
     the board as possible. Not optimal.
 
     @param board : the given board
+    @param debug : indicating debug mode
     @return      : optimal sequence of moves to reach goal state
     """
+
+    num_operations = 0
+
     board_copy = board.copy()
     moves = []
     while not check_victory(board_copy):
@@ -74,6 +78,7 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
             neg_val, pos = curr
             val = abs(neg_val)
             found = not player_heap
+            num_operations += 1
 
             # for each direction, we check which move would fill up a number of enemies that is equal to
             # the stack value of the current player piece
@@ -108,6 +113,9 @@ def greedy_search(board: dict[tuple, tuple]) -> list[tuple]:
                 dir_x, dir_y = move_to
                 moves.append((x, y, dir_x, dir_y))
                 break
+
+    if debug:
+        print("NUMBER OF GENERATIONS:", num_operations)
     return moves
 
 
@@ -231,7 +239,7 @@ def A_star(board: dict[tuple, tuple], debug=False) -> [tuple]:
         # reached goal state
         if check_victory(curr_state.board):
             if debug:
-                print("Number of generations is", num_operations)
+                print("NUMBER OF GENERATIONS:", num_operations)
             return curr_state.moves
 
         # for each neighboring node (direct child) of current state
@@ -332,7 +340,6 @@ def h1(state: State) -> int:
     For every piece (from most stacked to least), we check the most number of enemies
     that can be captured by it, regardless of the piece type (player or enemy). Once that is established,
     all said enemies are considered captured and will be ignored by subsequent checks.
-
     @param state : given current state
     @return      : the heuristic of said state (estimated number of moves to goal)
     """
@@ -345,31 +352,7 @@ def h1(state: State) -> int:
     board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1], num_player)), board.items()))
     sorted_board = dict(sorted(board_add, key=lambda tup: (tup[1][1], tup[1][0]), reverse=True))
     num_moves    = 0
-
-    # dictionaries to keep track of direction captures
-    dict_dir = {}
-    max_captured = []
-
-    # EDIT:
-    # now for each captured direction, we don't delete the entries immediately like we are doing now
-    # unless the entry has length 0 (meaning no captured possible).
-
-    # If the number of captured == the stack value of piece, then it has fulfilled its potential and we can
-    # delete it as per usual and update captured dictionary
-
-    # Otherwise, we must keep those entries, push to a heap and move on; heap entry:
-    # (length of list of captured pieces (L), position, captured list)
-
-    # We move on to the next highest stack value (sorted board)
-    # if the stack value of that is less than L of heap[0] (don't pop it yet): then that means our current
-    # highest stack is already lower than most potential currently anyway so we pop, num_moves += 1 and update
-    # the captured dictionary
-
-    # else, we do the same thing.
-    # Until either the captured dictionary is empty, or the heap is empty
-
-    # ANOTHER important aspect is that when sorting the sorted board list, red with equal value to blue must
-    # precede it (more prioritized in other words) --> DONE!!
+    dict_dir     = {}
 
     # from most stacked piece to least
     for pos in sorted_board:
@@ -377,30 +360,6 @@ def h1(state: State) -> int:
             break
         x, y = pos
         tp, val = sorted_board[pos]
-        moved = False
-
-        # check if val less than current highest potential of max_captured
-        # not quite correct yet, after this we must check to make sure the length of the captured list is corrected
-        # since we don't know if there are enemy pieces already captured by something else from before
-        if val < max_captured[0][0]:
-            num_captured, entry = heapq.heappop(max_captured)
-            x_moved, y_moved, dir_moved = entry
-
-            # remove stuffs in dict_dir
-            for dir in all_dir:
-                entry = dict_dir[(x_moved, y_moved, dir)]
-                if moved or not entry:
-                    del entry
-
-            # remove captured enemies from all un-captured enemies
-            captured = dict_dir[(x_moved, y_moved, dir_moved)]
-            for position in captured:
-                # if moved fulfils potential then we delete enemies from uncaptured and dict_dir entries
-                del uncaptured[position]
-
-            # remove unnecessary
-            num_moves += 1
-            continue
 
         # initialize the piece entry in direction dictionary
         for dir in all_dir:
@@ -453,36 +412,23 @@ def h1(state: State) -> int:
                         dict_dir[(x, y, (-x_sign, -y_sign))].append(_pos)
 
         # check the direction with most captures
-        num_captured = 0
+        max_captured = 0
         captured = []
         for dir in all_dir:
             curr_len = len(dict_dir[(x, y, dir)])
-            if curr_len > num_captured:
-                num_captured = curr_len
+            if curr_len > max_captured:
+                max_captured = curr_len
                 captured = dict_dir[(x, y, dir)]
-            if num_captured == val:
-                moved = True
-                break
 
         # if no capture
         if not captured:
             continue
 
-        # remove stuffs in dict_dir
-        for dir in all_dir:
-            entry = dict_dir[(x, y, dir)]
-            if moved or not entry:
-                del entry
-            else:
-                heap_entry = len(entry), (x, y, dir)
-                heapq.heappush(max_captured, heap_entry)
-
         # remove captured enemies from all un-captured enemies
-        if moved:
-            for position in captured:
-                # if moved fulfils potential then we delete enemies from uncaptured and dict_dir entries
-                del uncaptured[position]
-            num_moves += 1
+        for position in captured:
+            del uncaptured[position]
+        del captured
+        num_moves += 1
 
     num_moves += (uncaptured != {})
 
@@ -509,7 +455,7 @@ def h2(state: State) -> int:
     uncaptured   = enemy_filter(board)
     num_player   = len(board) - len(uncaptured)
     board_add    = list(map(lambda tup: (tup[0], piece_value_increment(tup[1], num_player)), board.items()))
-    sorted_board = dict(sorted(board_add, key=lambda tup: tup[1][1], reverse=True))
+    sorted_board = dict(sorted(board_add, key=lambda tup: (tup[1][1], tup[1][0]), reverse=True))
     num_moves    = 0
     dict_dir     = {}
 
