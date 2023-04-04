@@ -7,6 +7,7 @@
 
 import heapq
 from state import *
+from sequence import Sequence
 from movement import spread
 
 
@@ -20,27 +21,32 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
     return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
 
 
-def Greedy_search(board: dict[tuple, tuple]) -> (list[tuple], int):
+def Greedy_search(board: dict[tuple, tuple]) -> Sequence:
     """
     Greedy search algorithm in the special case of all enemy pieces have value of 1. The first priority is to
     capture as many enemies as possible, and the second is to leave as little number of scattered enemies on
     the board as possible. Not optimal.
 
     @param board : the given board
-    @return      : the number of generations required,
-                   and the optimal sequence of moves to reach goal state
+    @return      : object sequence representing the optimal sequence of moves
     """
 
     num_operations = 0
+    mem_use = 0
 
     board_copy = board.copy()
-    moves = []
+    mem_use   += len(board_copy)
+    prev_size  = 0
+    moves      = []
     while not check_victory(board_copy):
+        mem_use -= prev_size
 
         # max-heapify the board
         player_filtered = player_filter(board_copy)
         player_heap     = list(map(lambda tup: (-tup[1][1], tup[0]), player_filtered.items()))
         heapq.heapify(player_heap)
+        mem_use      += len(player_heap)
+        prev_size     = len(player_heap)
         max_captured  = 0
         min_scattered = INF
         move_pos      = ()
@@ -88,7 +94,9 @@ def Greedy_search(board: dict[tuple, tuple]) -> (list[tuple], int):
                 dir_x, dir_y = move_to
                 moves.append((x, y, dir_x, dir_y))
                 break
-    return moves, num_operations
+
+    sequence = Sequence(moves, num_operations, mem_use, Greedy_search.__name__)
+    return sequence
 
 
 def move_increment_by_direction(pos: tuple, dir: tuple) -> tuple:

@@ -8,18 +8,19 @@
 import queue
 from state import *
 from movement import spread
+from sequence import Sequence
 
 
-def A_star(board: dict[tuple, tuple]) -> ([tuple], int):
+def A_star(board: dict[tuple, tuple]) -> Sequence:
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
 
     @param board : the provided board (initial state)
-    @return      : the number of generations,
-                   and the sequence of optimal moves
+    @return      : object sequence, representing the optimal sequence of moves
     """
 
     num_operations = 0
+    mem_use = len(board)
 
     open_min   = queue.PriorityQueue()  # open set ordered by minimal cost first
     g_cost     = {}                     # real cumulative cost from root
@@ -38,17 +39,19 @@ def A_star(board: dict[tuple, tuple]) -> ([tuple], int):
         curr_state = open_min.get()
         hash_curr = curr_state.__hash__()
         del discovered[hash_curr]
+        mem_use -= (len(curr_state.board) + len(curr_state.moves))
 
         # reached goal state
         if check_victory(curr_state.board):
-            return curr_state.moves, num_operations
+            mem_use += len(discovered) + len(g_cost) + len(f_cost)
+            sequence = Sequence(curr_state.moves, num_operations, mem_use, A_star.__name__)
+            return sequence
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
             x, y, dir_x, dir_y = neighbor
             new_state = State.copy_state(curr_state)
             new_state.add_move(neighbor)
-
             num_operations += 1
 
             # each neighbor is a state resulted by single player move from current state
@@ -68,6 +71,7 @@ def A_star(board: dict[tuple, tuple]) -> ([tuple], int):
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
                     open_min.put(new_state)
+                    mem_use += len(new_state.board) + len(new_state.moves)
     return [], num_operations
 
 

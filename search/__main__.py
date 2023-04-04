@@ -29,7 +29,7 @@ def parse_input(input: str) -> dict[tuple, tuple]:
     }
 
 
-def test(name: str, search_f: Callable[[dict[tuple, tuple]], tuple]):
+def test(name: str, search_f: Callable[[dict[tuple, tuple]], Sequence]):
     """
     Test function calling main, and using the user-defined test cases specifically from
     test_boards.py
@@ -42,7 +42,7 @@ def test(name: str, search_f: Callable[[dict[tuple, tuple]], tuple]):
     return main(board, search_f)
 
 
-def main(board: dict[tuple, tuple], search_f: Callable[[dict[tuple, tuple]], tuple]):
+def main(board: dict[tuple, tuple], search_f: Callable[[dict[tuple, tuple]], Sequence]):
     """
     The main function that receives a board and creates a sequence of moves to reach the goal state.
 
@@ -50,19 +50,18 @@ def main(board: dict[tuple, tuple], search_f: Callable[[dict[tuple, tuple]], tup
     @param board    : the given board
     """
     start = time.time()
-    sequence, num_operations, func_name = search_f(board)
+    sequence = search_f(board)
     end = time.time()
     time_taken = end - start
-    display_name = get_algorithm_name(func_name)
-    print_sequence_board(board, sequence, num_operations, display_name, time_taken)
+    print_sequence_board(board, sequence, time_taken)
     return
 
 
 if __name__ == "__main__":
     # names of all test boards
-    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail',
+    names = ['test_case', 'suboptimal_kill', 'weight_problem', 'test_case_2', 'priority_fail', 'moderate_1',
              'complex_1', 'complex_2', 'complex_3', 'sparse_1', 'sparse_2', 'sparse_ps', 'sparse_es',
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
 
     # run test
-    test('all_1_48', search_f=search_informed)
+    test('sparse_1', search_f=search_informed)

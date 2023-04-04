@@ -5,6 +5,7 @@
               Single Player Infexion, COMP30024 Artificial Intelligence, Semester 1 2023. Utility functions.
 """
 
+from sequence import Sequence
 from movement import spread
 
 
@@ -85,22 +86,20 @@ def get_algorithm_name(f_name: str) -> str:
     @param f_name  : function name
     @return        : algorithm name
     """
-    display_name = f_name.replace("_", " ").replace(" star", "*")
+    display_name = f_name.replace("_", " ").replace(" star", "*").capitalize()
     return display_name
 
 
-def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_operations: int,
-                         algo: str, time_taken: float):
+def print_sequence_board(board: dict[tuple, tuple], sequence: Sequence, time_taken: float):
     """
     Print the different boards resulted from a sequence of moves.
 
     @param board          : the given board
-    @param sequence       : sequence of moves
-    @param num_operations : required number of generations to generate sequence
-    @param algo           : search algorithm name
+    @param sequence       : class sequence of moves
     @param time_taken     : time taken to execute the search
     """
 
+    # printing initial state
     print("")
     print("------------------------------------------------------")
     print("------------------- INITIAL STATE --------------------")
@@ -111,18 +110,29 @@ def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_o
     print("------------------------------------------------------")
     print("----------------------- MOVES ------------------------")
     print("------------------------------------------------------")
-    num_move = 0
 
-    for x, y, dx, dy in sequence:
+    # sequence and statistics data
+    num_move  = 0
+    algo_name = get_algorithm_name(sequence.algo_name)
+    moves     = sequence.moves
+    num_ops   = sequence.num_ops
+    mem_use   = sequence.mem_use
+
+    # printing subsequent states resulting from each move of returned sequence
+    for x, y, dx, dy in moves:
         num_move += 1
         spread((x, y), (dx, dy), board)
         print(f"Move #{num_move}: SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
         print(render_board(board))
         print("------------------------------------------------------")
 
+    # printing statistics
     print("-------------------- STATISTICS ----------------------")
     print("------------------------------------------------------")
-    print(f"SEARCH ALGORITHM\t\t :\t{algo}")
-    print(f"NUMBER OF MOVES\t\t\t :\t{len(sequence)}")
-    print(f"NUMBER OF GENERATIONS\t :\t{num_operations}")
-    print(f'TOTAL TIME TAKEN\t\t :\t{time_taken}')
+    print(f"SEARCH ALGORITHM\t\t :\t{algo_name}")
+    print(f"NUMBER OF MOVES\t\t\t :\t{len(moves)}")
+    print(f"OPERATION COUNT    [T]\t :\t{num_ops}")
+    print(f"STORED INPUT COUNT [S]\t :\t{mem_use}")
+    print(f'TOTAL TIME TAKEN\t\t :\t{round(time_taken, 6)}\t(s)\n')
+    print("Note: [T] -> time complexity")
+    print("      [S] -> space complexity")
