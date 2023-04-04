@@ -1,18 +1,22 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part A: Single Player Infexion
+"""
+    Authors : The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+    Module  : utils.py
+    Purpose : apply_ansi and render_board are written in The University of Melbourne skeleton code - Project Part A:
+              Single Player Infexion, COMP30024 Artificial Intelligence, Semester 1 2023. Utility functions.
+"""
 
-def apply_ansi(string, bold=True, color=None):
+from state import DENSE
+from movement import spread
+
+
+def apply_ansi(string, bold=True, color=None) -> str:
     """
     Wraps a string with ANSI control codes to enable basic terminal-based formatting on that string.
-    Note: Not all terminals will be compatible!
 
-    Arguments:
-
-    str   -- String to apply ANSI control codes to
-    bold  -- True if you want the text to be rendered bold
-    color -- Colour of the text. Currently, only red/"r" and blue/"b" are
-             supported, but this can easily be extended if desired...
-
+    @param string : string to apply ANSI control codes to
+    @param bold   : true if you want the text to be rendered bold
+    @param color  : colour of the text.
+    @return       : applied ANSI string
     """
     bold_code = "\033[1m" if bold else ""
     color_code = ""
@@ -73,3 +77,48 @@ def render_board(board: dict[tuple, tuple], ansi=True) -> str:
             output += "    "
         output += "\n"
     return output
+
+
+def get_algorithm_name(f_name: str, density: int) -> str:
+    """
+    Function to get the search algorithm name, just for display.
+
+    @param f_name  : function name
+    @param density : board density
+    @return        : algorithm name
+    """
+    if f_name == "search":
+        display_name = "Informed search - A*" if density < DENSE else "Informed search - Greedy"
+    else:
+        display_name = "Uninformed search - IDS"
+    return display_name
+
+
+def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_operations: int, algo: str):
+    """
+    Print the different boards resulted from a sequence of moves.
+
+    @param board          : the given board
+    @param sequence       : sequence of moves
+    @param num_operations : required number of generations to generate sequence
+    @param algo           : search algorithm name
+    """
+    print("")
+    print("---------------------------------------------------")
+    print("---------------- INITIAL STATE --------------------")
+    print("---------------------------------------------------")
+    print(render_board(board))
+    print("\n")
+    print("---------------------------------------------------")
+    print("--------------------- MOVES -----------------------")
+    print("---------------------------------------------------")
+    for x, y, dx, dy in sequence:
+        spread((x, y), (dx, dy), board)
+        print(f"SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
+        print(render_board(board))
+        print("---------------------------------------------------")
+    print("------------------ STATISTICS ---------------------")
+    print("---------------------------------------------------")
+    print("SEARCH ALGORITHM\t\t: ", algo)
+    print(f"NUMBER OF MOVES\t\t\t:  {len(sequence)}")
+    print(f"NUMBER OF GENERATIONS\t:  {num_operations}")

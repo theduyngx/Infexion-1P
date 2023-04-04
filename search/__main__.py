@@ -5,12 +5,12 @@
               COMP30024 Artificial Intelligence, Semester 1 2023. The main program.
 """
 
-from program import search
-from utils import render_board
-
-from movement import spread
-from test_boards import all_boards
+from typing import Callable
 import time
+
+from program import search, search_uninformed
+from test_boards import all_boards
+from utils import *
 
 
 def parse_input(input: str) -> dict[tuple, tuple]:
@@ -29,56 +29,29 @@ def parse_input(input: str) -> dict[tuple, tuple]:
     }
 
 
-def print_sequence_board(board: dict[tuple, tuple], sequence: list[tuple], num_operations: int):
-    """
-    Print the different boards resulted from a sequence of moves.
-
-    @param board          : the given board
-    @param sequence       : sequence of moves
-    @param num_operations : required number of generations to generate sequence
-    @return               : none
-    """
-    print("")
-    print("---------------------------------------------------")
-    print("---------------- INITIAL STATE --------------------")
-    print("---------------------------------------------------")
-    print(render_board(board))
-    print("\n")
-    print("---------------------------------------------------")
-    print("--------------------- MOVES -----------------------")
-    print("---------------------------------------------------")
-    for x, y, dx, dy in sequence:
-        spread((x, y), (dx, dy), board)
-        print(f"SPREAD ({x}, {y}) at direction ({dx}, {dy})\n")
-        print(render_board(board))
-        print("---------------------------------------------------")
-    print("------------------ STATISTICS ---------------------")
-    print("---------------------------------------------------")
-    print(f"NUMBER OF MOVES: {len(sequence)}")
-    print(f"NUMBER OF GENERATIONS: {num_operations}")
-
-
-def test(name: str):
+def test(name: str, search_f: Callable[[dict[tuple, tuple]], tuple]):
     """
     Test function calling main, and using the user-defined test cases specifically from
     test_boards.py
 
-    @param name : name of test board
-    @return     : the main function
+    @param name     : name of test board
+    @param search_f : the search function
+    @return         : the main function
     """
     board = all_boards[name]
-    return main(board)
+    return main(board, search_f)
 
 
-def main(board: dict[tuple, tuple]):
+def main(board: dict[tuple, tuple], search_f: Callable[[dict[tuple, tuple]], tuple]):
     """
     The main function that receives a board and creates a sequence of moves to reach the goal state.
 
-    @param board : the given board
-    @return      : none
+    @param search_f : the search function
+    @param board    : the given board
     """
-    num_operations, sequence = search(board)
-    print_sequence_board(board, sequence, num_operations)
+    num_operations, sequence = search_f(board)
+    display_name = get_algorithm_name(search_f.__name__, len(board))
+    print_sequence_board(board, sequence, num_operations, display_name)
     return
 
 
@@ -92,6 +65,6 @@ if __name__ == "__main__":
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
 
     # run test
-    test('complex_3')
+    test('test_case', search_f=search)
     et = time.time()
-    print(f'TOTAL TIME TAKEN: {et-st}')
+    print(f'TOTAL TIME TAKEN\t\t:  {et-st}')

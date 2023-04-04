@@ -7,7 +7,7 @@
 """
 
 from informed_search import informed_search
-from uninformed_search import IDS
+from ids import IDS
 
 
 def search(input: dict[tuple, tuple]) -> (int, list[tuple]):
@@ -20,7 +20,7 @@ def search(input: dict[tuple, tuple]) -> (int, list[tuple]):
     return informed_search(input)
 
 
-def search_uninformed(board: dict[tuple, tuple]) -> list[tuple]:
+def search_uninformed(board: dict[tuple, tuple]) -> (int, list[tuple]):
     """
     Uninformed search algorithm finding the optimal sequence of moves for a given board to reach
     its goal state.
@@ -30,5 +30,5 @@ def search_uninformed(board: dict[tuple, tuple]) -> list[tuple]:
     """
 
     # Here we're returning "hardcoded" actions for the given test.csv file.
-    min_ret, _ = IDS(board)
-    return min_ret
+    num_operations, min_ret = IDS(board)
+    return num_operations, min_ret
