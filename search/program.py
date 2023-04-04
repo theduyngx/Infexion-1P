@@ -43,7 +43,5 @@ def search_uninformed(board: dict[tuple, tuple]) -> (list[tuple], int, str):
                    the number of generations required,
                    the search algorithm name
     """
-
-    # Here we're returning "hardcoded" actions for the given test.csv file.
     sequence, num_operations = IDS(board)
     return sequence, num_operations, IDS.__name__
