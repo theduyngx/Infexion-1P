@@ -11,13 +11,14 @@ from movement import *
 from state import *
 
 
-def informed_search(board: dict[tuple, tuple]) -> [tuple]:
+def informed_search(board: dict[tuple, tuple]) -> (int, [tuple]):
     """
     Informed search algorithm - hybrid algorithm using primarily A*, among other informed algorithms
     in special cases.
 
     @param board : the given board
-    @return      : the optimal sequence of moves to reach goal state
+    @return      : the number of generations required,
+                   the optimal sequence of moves to reach goal state
     """
     all_1 = (len(board) == TOTAL)
     if not all_1 and len(board) >= DENSE:
@@ -28,8 +29,8 @@ def informed_search(board: dict[tuple, tuple]) -> [tuple]:
                 break
             all_1 = True
     if all_1:
-        return greedy_search(board, debug=True)
-    return A_star(board, debug=True)
+        return greedy_search(board)
+    return A_star(board)
 
 
 # ------------------------------------- GREEDY SEARCH ----------------------------------------- #
@@ -45,14 +46,13 @@ def player_filter(board: dict[tuple, tuple]) -> dict[tuple, tuple]:
     return {position: piece for position, piece in board.items() if piece[0] == PLAYER}
 
 
-def greedy_search(board: dict[tuple, tuple], debug=False) -> list[tuple]:
+def greedy_search(board: dict[tuple, tuple]) -> (int, list[tuple]):
     """
     Greedy search algorithm in the special case of all enemy pieces have value of 1. The first priority is to
     capture as many enemies as possible, and the second is to leave as little number of scattered enemies on
     the board as possible. Not optimal.
 
     @param board : the given board
-    @param debug : indicating debug mode
     @return      : optimal sequence of moves to reach goal state
     """
 
@@ -113,10 +113,7 @@ def greedy_search(board: dict[tuple, tuple], debug=False) -> list[tuple]:
                 dir_x, dir_y = move_to
                 moves.append((x, y, dir_x, dir_y))
                 break
-
-    if debug:
-        print("NUMBER OF GENERATIONS:", num_operations)
-    return moves
+    return num_operations, moves
 
 
 def move_increment_by_direction(pos: tuple, dir: tuple) -> tuple:
@@ -207,13 +204,12 @@ def get_captured_and_scattered(board: dict[tuple, tuple], player_pos: tuple, pla
 # ------------------------------------- A-STAR SEARCH ----------------------------------------- #
 
 
-def A_star(board: dict[tuple, tuple], debug=False) -> [tuple]:
+def A_star(board: dict[tuple, tuple]) -> (int, [tuple]):
     """
     A* algorithm to find the optimal sequence of moves to reach goal state
 
     @param board : the provided board (initial state)
-    @param debug : debug mode printing out number of node generations
-    @return      : the sequence of optimal moves
+    @return      : the number of generations, the sequence of optimal moves
     """
 
     num_operations = 0
@@ -238,9 +234,7 @@ def A_star(board: dict[tuple, tuple], debug=False) -> [tuple]:
 
         # reached goal state
         if check_victory(curr_state.board):
-            if debug:
-                print("NUMBER OF GENERATIONS:", num_operations)
-            return curr_state.moves
+            return num_operations, curr_state.moves
 
         # for each neighboring node (direct child) of current state
         for neighbor in get_neighbors(curr_state):
@@ -340,6 +334,7 @@ def h1(state: State) -> int:
     For every piece (from most stacked to least), we check the most number of enemies
     that can be captured by it, regardless of the piece type (player or enemy). Once that is established,
     all said enemies are considered captured and will be ignored by subsequent checks.
+
     @param state : given current state
     @return      : the heuristic of said state (estimated number of moves to goal)
     """

@@ -10,7 +10,7 @@ from informed_search import informed_search
 from uninformed_search import IDS
 
 
-def search(input: dict[tuple, tuple]) -> list[tuple]:
+def search(input: dict[tuple, tuple]) -> (int, list[tuple]):
     """
     Main search function - using informed search A* algorithm to find optimal path.
 
