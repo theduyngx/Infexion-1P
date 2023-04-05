@@ -37,7 +37,7 @@ def A_star(board: dict[tuple, tuple]) -> Sequence:
     # by using min-heap, we can immediately retrieve unexpanded nodes with lowest f-score
     while not open_min.empty():
         curr_state = open_min.get()
-        hash_curr = curr_state.__hash__()
+        hash_curr  = curr_state.__hash__()
         del discovered[hash_curr]
         mem_use -= (len(curr_state.board) + len(curr_state.moves))
 
@@ -67,12 +67,14 @@ def A_star(board: dict[tuple, tuple]) -> Sequence:
                 f_cost[hash_new] = g_cost_accum + h(new_state)
                 new_state.f_cost = f_cost[hash_new]
 
-                # update open sets
+                # update open sets --> update memory use
                 if hash_new not in discovered:
                     discovered[hash_new] = 1
                     open_min.put(new_state)
                     mem_use += len(new_state.board) + len(new_state.moves)
-    return [], num_operations
+
+    sequence = Sequence([], num_operations, mem_use, A_star.__name__)
+    return sequence
 
 
 def get_neighbors(state: State) -> [tuple]:

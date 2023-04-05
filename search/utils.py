@@ -86,7 +86,7 @@ def get_algorithm_name(f_name: str) -> str:
     @param f_name  : function name
     @return        : algorithm name
     """
-    display_name = f_name.replace("_", " ").replace(" star", "*").capitalize()
+    display_name = f_name.replace("_", " ").replace(" star", "*")
     return display_name
 
 

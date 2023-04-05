@@ -64,4 +64,4 @@ if __name__ == "__main__":
              'all_1_48', 'all_12_37', 'all_23_26', 'all_37_12', 'all_43_5', 'all_2_1', 'all_2_2']
 
     # run test
-    test('all_2_2', search_f=search_informed)
+    test('test_case', search_f=search_uninformed)
